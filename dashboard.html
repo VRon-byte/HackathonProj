@@ -10,16 +10,16 @@
 
 <body>
 
-    <!-- Button to open sidebar -->
+    
     <button class="sidebar-toggle" id="sidebarToggle">☰</button>
 
-    <!-- Dark overlay -->
+    
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- SIDEBAR -->
+    
     <aside class="sidebar" id="sidebar">
 
-        <!-- Header -->
+    
         <div class="sidebar-header-row">
 
             <header class="Logo">
@@ -33,13 +33,13 @@
 
         </div>
 
-        <!-- Login / Signup -->
+
         <div class="auth-buttons">
             <button class="login-button">Login</button>
             <button class="signup-button">Sign Up</button>
         </div>
 
-        <!-- Filters -->
+        
         <section class="filter-sections">
 
             <h2>Filters</h2>
@@ -59,7 +59,7 @@
 
         </section>
 
-        <!-- Events -->
+        
         <section class="events">
 
             <h2>Events</h2>
@@ -119,18 +119,18 @@
     </aside>
 
 
-    <!-- MAP -->
+    
     <main class="map-area">
 
         <div class="map-placeholder">
 
-            <!-- Zoom controls -->
+            
             <div class="zoom-controls">
                 <button>+</button>
                 <button>−</button>
             </div>
 
-            <!-- Event markers -->
+            
             <div class="marker music">🎵</div>
             <div class="marker market">🛍️</div>
             <div class="marker tech">💻</div>
@@ -142,7 +142,7 @@
     </main>
 
 
-    <!-- SIDEBAR JAVASCRIPT -->
+    
     <script>
 
         const sidebar = document.getElementById("sidebar");
@@ -150,21 +150,21 @@
         const close = document.getElementById("sidebarClose");
         const overlay = document.getElementById("sidebarOverlay");
 
-        // Open sidebar
+        
         toggle.addEventListener("click", () => {
             sidebar.classList.add("open");
             overlay.classList.add("visible");
             toggle.classList.add("hidden");
         });
 
-        // Close sidebar
+        
         close.addEventListener("click", () => {
             sidebar.classList.remove("open");
             overlay.classList.remove("visible");
             toggle.classList.remove("hidden");
         });
 
-        // Close when clicking outside
+        
         overlay.addEventListener("click", () => {
             sidebar.classList.remove("open");
             overlay.classList.remove("visible");
