@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <header class="user-header">
+            <div class="profile-pic-container">
+                <img src="avatar.jpg" alt="Profile Picture" class="profile-pic">
+                <span class="edit-badge">✏️</span>
+            </div>
+            <div class="user-info">
+                <h1 class="user-name">Your Name</h1>
+                <p class="user-meta">@username &middot; City, State</p>
+                <p class="user-bio">Avid cyclist and city explorer. Always down for a pop-up or a good ride.</p>
+                <div class="user-tags">
+                    <span class="event-tag">📍 4 event types</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Swapped form/div for a single semantic nav element -->
+        <nav class="ToggleOptions">
+            <input type="radio" id="ProfileOption" name="nav" value="Profile" checked>
+            <label for="ProfileOption">👤 Profile</label>
+
+            <input type="radio" id="EventOption" name="nav" value="Event">
+            <label for="EventOption">📍 Events</label>
+
+            <input type="radio" id="AlertsOption" name="nav" value="Alert">
+            <label for="AlertsOption">🔔 Alerts</label>
+
+            <input type="radio" id="SettingsOption" name="nav" value="Settings">
+            <label for="SettingsOption">⚙️ Settings</label>
+        </nav>
+
+        <!-- PROFILE TAB -->
+        <div class="tab-content profile">
+            <div class="personalinfo">
+                <!-- We moved the header OUTSIDE the form -->
+                <div class="section-header">
+                    <div>
+                        <h2>PERSONAL INFO</h2>
+                        <h3>Your public-facing details</h3>
+                    </div>
+                    <button type="button" class="edit-btn">Edit</button>
+                </div>
+
+                <!-- Now the form grid only affects the labels and inputs -->
+                <form>   
+                    <label for="Name">Name</label>
+                    <input type="text" id="Name" name="name" placeholder="e.g. John Doe" required>
+
+                    <label for="UserName">Username</label>                        
+                    <input type="text" id="UserName" name="username" placeholder="e.g. johndoe99">
+
+                    <label for="Email">Email</label>
+                    <input type="email" id="Email" name="email" placeholder="e.g. john.doe@example.com">
+
+                    <label for="PhoneNumber">Phone</label>
+                    <input type="tel" id="PhoneNumber" name="phonenumber" placeholder="e.g. +1 (555) 000-0000">
+
+                    <label for="Location">Location</label>
+                    <input type="text" id="Location" name="location" placeholder="e.g. Chicago, IL">
+                </form>
+            </div>
+
+            <h2><strong>ACCOUNT</strong></h2>
+            <h3>Security and account management</h3>
+
+            <!-- Kept this form for standard password submission behavior -->
+            <form action="/update-password" method="POST">
+                <strong>Change Password</strong>
+                <p>Last changed 3 months ago</p>
+                
+                <label for="current-password">Current Password:</label>
+                <input type="password" id="current-password" name="current_password" required>
+                
+                <label for="new-password">New Password:</label>
+                <input type="password" id="new-password" name="new_password" required>
+                
+                <label for="confirm-password">Confirm New Password:</label>
+                <input type="password" id="confirm-password" name="confirm_password" required>
+
+                <button type="submit">Update Password</button>
+            </form>
+
+            <div class="security-section">
+                <strong>Two-factor authentication</strong>
+                <p>Add an extra layer of security</p>
+                
+                <button type="button" id="toggle-2fa-btn">Enable</button>
+
+                <div id="2fa-setup" style="display: none;">
+                    <p>Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy):</p>
+                    <img src="/api/generate-qr-code" alt="2FA QR Code">
+                    
+                    <label for="verification-code">Enter 6-digit Code:</label>
+                    <input type="text" id="verification-code" name="verification_code" maxlength="6" pattern="[0-9]{6}">
+                    <button type="button" id="confirm-2fa-btn">Verify and Enable</button>
+                </div>
+            </div>
+
+            <h2><strong>DANGER ZONE</strong></h2>
+            
+            <div class="danger-item">
+                <div>
+                    <h2>Deactivate account</h2>
+                    <h3>Temporarily hide your profile</h3>
+                </div>
+                <button type="button" class="danger-btn">Deactivate</button>
+            </div>
+
+            <div class="danger-item">
+                <div>
+                    <h2>Delete account</h2>
+                    <h3>Permanently remove all your data</h3>
+                </div>
+                <button type="button" class="danger-btn">Delete</button>
+            </div>
+        </div>
+
+        <!-- EVENTS TAB -->
+        <div class="tab-content Event">
+            <!-- Merged the minimal-event-form class directly onto the card -->
+            <div class="simple-event-card minimal-event-form">
+                <h2>EVENT TYPES</h2>
+                <h3>Choose what shows up on your map</h3>
+
+                <label>
+                    <div class="event-text">
+                        <strong>🚴‍♀️ Bike Rides</strong>
+                        <small>Group rides, cycling tours & races</small>
+                    </div>
+                    <input type="checkbox" name="bikerides" checked>
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>🎉 Parties</strong>
+                        <small>Social gatherings, celebrations & nightlife</small>
+                    </div>
+                    <input type="checkbox" name="parties" checked>
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>🎵 Live Music</strong>
+                        <small>Concerts, open mics & DJ sets</small>
+                    </div>
+                    <input type="checkbox" name="livemusic">
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>🍜 Food & Drink</strong>
+                        <small>Pop-ups, tastings & food festivals</small>
+                    </div>
+                    <input type="checkbox" name="foodanddrink" checked>
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>⚽ Sports & Fitness</strong>
+                        <small>Pickup games, runs & workouts</small>
+                    </div>
+                    <input type="checkbox" name="sportsandfitness">
+                </label>
+                
+                <label>
+                    <div class="event-text">
+                        <strong>🎨 Arts & Culture</strong>
+                        <small>Gallery openings, film screenings & theater</small>
+                    </div>
+                    <input type="checkbox" name="artsandculture">
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>💻 Tech & Networking</strong>
+                        <small>Industry meetups, job fairs, tech talks</small>
+                    </div>
+                    <input type="checkbox" name="techandnetworking">
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>🌲 Outdoor & Nature</strong>
+                        <small>Guided treks, kayaking, nature photography</small>
+                    </div>
+                    <input type="checkbox" name="outdoorandnature">
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>👨‍👩‍👧‍👦 Family Friendly</strong>
+                        <small>Child-friendly workshops, crafts & storytelling</small>
+                    </div>
+                    <input type="checkbox" name="familyfriendly">
+                </label>
+            </div>
+        </div>
+
+        <!-- ALERTS TAB -->
+        <div class="tab-content Alert">
+            <!-- Merged the minimal-event-form class directly onto the card -->
+            <div class="simple-event-card minimal-event-form">
+                <h2>ALERTS</h2>
+                <h3>How and when we reach you</h3>
+
+                <label>
+                    <div class="event-text">
+                        <strong>Push notifications</strong>
+                        <small>Real-time alerts on your device</small>
+                    </div>
+                    <input type="checkbox" name="pushnotifications" checked>
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>Email digests</strong>
+                        <small>Weekly roundup of upcoming events</small>
+                    </div>
+                    <input type="checkbox" name="emailalert">
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>New events nearby</strong>
+                        <small>When a new event is added within your radius</small>
+                    </div>
+                    <input type="checkbox" name="neweventsnearby" checked>
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>Event reminders</strong>
+                        <small>1-hour reminder for events you've saved</small>
+                    </div>
+                    <input type="checkbox" name="eventreminders" checked>
+                </label>
+
+                <label>
+                    <div class="event-text">
+                        <strong>Friend activity</strong>
+                        <small>When friends save or attend an event</small>
+                    </div>
+                    <input type="checkbox" name="friendactivity">
+                </label>
+            </div>
+
+            <div class="simple-event-card">
+                <h2>NEARBY RADIUS</h2>
+                <h3>Distance used for 'Nearby' event alerts</h3>
+
+                <!-- Removed the form wrapper entirely -->
+                <div class="radius-options">
+                    <input type="radio" id="OneMile" name="radius" value="1">
+                    <label for="OneMile">1 mile</label>
+
+                    <input type="radio" id="TwoMile" name="radius" value="2">
+                    <label for="TwoMile">2 miles</label>
+
+                    <input type="radio" id="FiveMile" name="radius" value="5" checked>
+                    <label for="FiveMile">5 miles</label>
+
+                    <input type="radio" id="TenMile" name="radius" value="10">
+                    <label for="TenMile">10 miles</label>
+
+                    <input type="radio" id="TwentyFiveMile" name="radius" value="25">
+                    <label for="TwentyFiveMile">25 miles</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div class="tab-content Settings">
+            <div class="simple-event-card">
+                <h2>APPEARANCE</h2>
+                <h3>Map and display preferences</h3>
+                
+                <label class="settings-row">
+                    <strong>Theme</strong>
+                    <select class="settings-select">
+                        <option value="Dark" selected>Dark</option>
+                        <option value="System">System Default</option>
+                        <option value="Light">Light</option>
+                    </select>
+                </label>
+                
+                <label class="settings-row">
+                    <strong>Map style</strong>
+                    <select class="settings-select">
+                        <option value="Street" selected>Street</option>
+                        <option value="Satellite">Satellite</option>
+                        <option value="Terrain">Terrain</option>
+                    </select>
+                </label>
+
+                <label class="settings-row">
+                    <strong>Distance units</strong>
+                    <select class="settings-select">
+                        <option value="Imperial" selected>Imperial (mi)</option>
+                        <option value="Metric">Metric (km)</option>
+                    </select>
+                </label>
+            </div>
+
+            <!-- Merged the minimal-event-form class directly onto the card -->
+            <div class="simple-event-card minimal-event-form">
+                <h2>PRIVACY</h2>
+                <h3>Control your visibility on the map</h3>
+
+                <label>
+                    <span class="event-text">
+                        <strong>Public profile</strong>
+                        <small>Let others discover your profile</small>
+                    </span>
+                    <input type="checkbox" name="publicprofile">
+                </label>
+
+                <label>
+                    <span class="event-text">
+                        <strong>Show on map</strong>
+                        <small>Display your location dot to friends</small>
+                    </span>
+                    <input type="checkbox" name="showonmap" checked>
+                </label>
+
+                <label>
+                    <span class="event-text">
+                        <strong>Activity status</strong>
+                        <small>Show when you were last active</small>
+                    </span>
+                    <input type="checkbox" name="activitystatus" checked>
+                </label>
+
+                <label>
+                    <span class="event-text">
+                        <strong>Read receipts</strong>
+                        <small>Let others see when you've read messages</small>
+                    </span>
+                    <input type="checkbox" name="readreceipts">
+                </label>
+            </div>
+
+            <div class="simple-event-card">
+                <h2>DATA & STORAGE</h2>
+                
+                <label class="settings-row">
+                    <span class="event-text">
+                        <strong>Clear cached map data</strong>
+                        <small>Free up local storage (124 MB)</small>
+                    </span>
+                    <button type="button" class="settings-action-btn">Clear</button>
+                </label>
+                
+                <label class="settings-row">
+                    <span class="event-text">
+                        <strong>Download my data</strong>
+                        <small>Export your saved events and activity</small>
+                    </span>
+                    <button type="button" class="settings-action-btn">Export</button>
+                </label>
+            </div>
+
+            <div class="simple-event-card">
+                <h2>ABOUT</h2>
+                
+                <label class="settings-row">
+                    <strong>Version</strong>
+                    <span class="settings-text-value">2.4.1 (build 408)</span>
+                </label>
+                
+                <a href="#" class="settings-row">
+                    <strong>Terms of Service</strong>
+                    <span class="settings-arrow">&rarr;</span>
+                </a>
+                
+                <a href="#" class="settings-row">
+                    <strong>Privacy Policy</strong>
+                    <span class="settings-arrow">&rarr;</span>
+                </a>
+                
+                <a href="#" class="settings-row">
+                    <strong>Send feedback</strong>
+                    <span class="settings-arrow">&rarr;</span>
+                </a>
+            </div>
+
+            <button type="button" class="sign-out-btn">Sign out</button>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
