@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Settings</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
 </head>
 <body>
     <main>
@@ -23,7 +23,6 @@
             </div>
         </header>
 
-        <!-- Swapped form/div for a single semantic nav element -->
         <nav class="ToggleOptions">
             <input type="radio" id="ProfileOption" name="nav" value="Profile" checked>
             <label for="ProfileOption">👤 Profile</label>
@@ -38,10 +37,8 @@
             <label for="SettingsOption">⚙️ Settings</label>
         </nav>
 
-        <!-- PROFILE TAB -->
         <div class="tab-content profile">
             <div class="personalinfo">
-                <!-- We moved the header OUTSIDE the form -->
                 <div class="section-header">
                     <div>
                         <h2>PERSONAL INFO</h2>
@@ -50,7 +47,6 @@
                     <button type="button" class="edit-btn">Edit</button>
                 </div>
 
-                <!-- Now the form grid only affects the labels and inputs -->
                 <form>   
                     <label for="Name">Name</label>
                     <input type="text" id="Name" name="name" placeholder="e.g. John Doe" required>
@@ -72,7 +68,6 @@
             <h2><strong>ACCOUNT</strong></h2>
             <h3>Security and account management</h3>
 
-            <!-- Kept this form for standard password submission behavior -->
             <form action="/update-password" method="POST">
                 <strong>Change Password</strong>
                 <p>Last changed 3 months ago</p>
@@ -124,9 +119,7 @@
             </div>
         </div>
 
-        <!-- EVENTS TAB -->
         <div class="tab-content Event">
-            <!-- Merged the minimal-event-form class directly onto the card -->
             <div class="simple-event-card minimal-event-form">
                 <h2>EVENT TYPES</h2>
                 <h3>Choose what shows up on your map</h3>
@@ -205,9 +198,7 @@
             </div>
         </div>
 
-        <!-- ALERTS TAB -->
         <div class="tab-content Alert">
-            <!-- Merged the minimal-event-form class directly onto the card -->
             <div class="simple-event-card minimal-event-form">
                 <h2>ALERTS</h2>
                 <h3>How and when we reach you</h3>
@@ -277,7 +268,6 @@
             </div>
         </div>
 
-        <!-- SETTINGS TAB -->
         <div class="tab-content Settings">
             <div class="simple-event-card">
                 <h2>APPEARANCE</h2>
@@ -310,7 +300,6 @@
                 </label>
             </div>
 
-            <!-- Merged the minimal-event-form class directly onto the card -->
             <div class="simple-event-card minimal-event-form">
                 <h2>PRIVACY</h2>
                 <h3>Control your visibility on the map</h3>
@@ -396,6 +385,6 @@
         </div>
     </main>
 
-    <script src="script.js"></script>
+    <script src="profile.js"></script>
 </body>
 </html>

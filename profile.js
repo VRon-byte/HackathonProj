@@ -1,4 +1,3 @@
-// --- 1. Theme Switcher Logic ---
 const themeSelect = document.querySelectorAll('.settings-select')[0];
 if (themeSelect) {
     themeSelect.addEventListener('change', (e) => {
@@ -23,7 +22,6 @@ if (themeSelect) {
     });
 }
 
-// --- 2. Two-Factor Authentication (2FA) Reveal ---
 const toggle2faBtn = document.getElementById('toggle-2fa-btn');
 const setup2faDiv = document.getElementById('2fa-setup');
 
@@ -35,7 +33,6 @@ if (toggle2faBtn && setup2faDiv) {
     });
 }
 
-// --- 3. Action Buttons (Data & Storage) ---
 const actionBtns = document.querySelectorAll('.settings-action-btn');
 if (actionBtns.length >= 2) {
     const clearCacheBtn = actionBtns[0];
@@ -52,7 +49,6 @@ if (actionBtns.length >= 2) {
     });
 }
 
-// --- 4. Danger Zone Buttons ---
 const dangerBtns = document.querySelectorAll('.danger-btn');
 if (dangerBtns.length >= 2) {
     const deactivateBtn = dangerBtns[0];
@@ -72,7 +68,6 @@ if (dangerBtns.length >= 2) {
     });
 }
 
-// --- 5. Sign Out Button ---
 const signOutBtn = document.querySelector('.sign-out-btn');
 if (signOutBtn) {
     signOutBtn.addEventListener('click', () => {
@@ -80,7 +75,6 @@ if (signOutBtn) {
     });
 }
 
-// --- 6. Form Submission Prevention ---
 const forms = document.querySelectorAll('form');
 forms.forEach(form => {
     form.addEventListener('submit', (e) => {
@@ -89,7 +83,6 @@ forms.forEach(form => {
     });
 });
 
-// --- 7. Live Update Profile Header ---
 const nameInput = document.getElementById('Name');
 const usernameInput = document.getElementById('UserName');
 const locationInput = document.getElementById('Location');
@@ -111,7 +104,6 @@ if (usernameInput) usernameInput.addEventListener('input', updateProfileCard);
 if (locationInput) locationInput.addEventListener('input', updateProfileCard);
 
 
-// --- 8. Live Update Event Count ---
 const eventCheckboxes = document.querySelectorAll('.tab-content.Event input[type="checkbox"]');
 const eventBadge = document.querySelector('.event-tag');
 
@@ -137,5 +129,28 @@ eventCheckboxes.forEach(box => {
     box.addEventListener('change', updateEventCount);
 });
 
-// Run once on load to set the initial count
 updateEventCount();
+
+const editBtn = document.querySelector('.edit-btn');
+if (editBtn) {
+    editBtn.addEventListener('click', () => {
+        alert('Edit mode enabled! You can now change your personal info.');
+    });
+}
+
+const confirm2faBtn = document.getElementById('confirm-2fa-btn');
+const verificationInput = document.getElementById('verification-code');
+
+if (confirm2faBtn) {
+    confirm2faBtn.addEventListener('click', () => {
+        if (verificationInput && verificationInput.value.length === 6) {
+            alert('Success! Two-factor authentication is now enabled.');
+            
+            document.getElementById('2fa-setup').style.display = 'none';
+            document.getElementById('toggle-2fa-btn').textContent = 'Manage 2FA';
+            verificationInput.value = ''; 
+        } else {
+            alert('Please enter a valid 6-digit code.');
+        }
+    });
+}
