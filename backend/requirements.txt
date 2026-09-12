@@ -1,0 +1,51 @@
+"""
+
+Frontend:
+  HTML, CSS, JavaScript
+
+Backend:
+  FastAPI
+
+Authentication:
+  Auth0
+
+Database: PostgreSQL
+Location queries: PostGIS
+
+Map:
+  Frontend map: Leaflet
+Map data/tiles: OpenStreetMap
+
+Live chat:
+  FastAPI WebSockets
+
+API testing:
+  FastAPI Swagger UI
+
+
+
+
+Auth0
+FastAPI
+Uvicorn
+PostgreSQL
+PostGIS
+SQLAlchemy
+Alembic
+Leaflet
+OpenStreetMap tiles
+FastAPI Swagger UI
+"""
+fastapi
+uvicorn[standard]
+
+sqlalchemy
+psycopg[binary]
+geoalchemy2
+alembic
+
+pydantic-settings
+PyJWT[crypto]
+httpx
+
+python-multipart

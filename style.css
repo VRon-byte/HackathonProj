@@ -17,6 +17,13 @@ html, body {
     z-index: 0;
 }
 
+/* Leaflet renders into this element. */
+#map {
+    width: 100%;
+    height: 100vh;
+    min-height: 600px;
+}
+
 .map-placeholder {
     width: 100%;
     height: 100%;
