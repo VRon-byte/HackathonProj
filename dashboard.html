@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0; url=touchgrass/dashboard.html?v=20260913">
   <title>TouchGrass</title>
-  <!-- Leaflet supplies the interactive map controls and marker rendering. -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -31,11 +30,6 @@
 
     <section class="filter-sections">
       <h2>Filters</h2>
-      <label for="radius">
-        Search radius: 
-        <span id="radius-value">10</span> km
-      </label>
-      <input id="radius" type="range" min="1" max="100" value="10">
       <div class="filter-buttons">
         <button class="filter-active" type="button" data-category="All">All</button>
         <button class="filter-button" type="button" data-category="Music">Music</button>
@@ -53,19 +47,28 @@
     <section class="events">
       <h2>Nearby Events</h2>
       <p class="no-pinned-events" id="noPinnedEvents" hidden>No pinned events yet.</p>
-          <p id="event-status" role="status">Loading events...</p>
-          <div id="event-list"></div>
+      <p class="no-events-found" id="noEventsFound" hidden>No events found.</p>
+      <div id="eventList"></div>
     </section>
 
   </aside>
 
   <main class="map-area">
-      <div id="map" aria-label="Map of nearby events">
-      </div>
+    <div class="map-placeholder">
       <div class="zoom-controls">
         <button>+</button>
         <button>−</button>
       </div>
+      <div class="marker music">🎵</div>
+      <div class="marker market">🛍️</div>
+      <div class="marker tech">💻</div>
+      <div class="marker sports">⚽</div>
+      <div class="marker art">🎨</div>
+      <div class="marker garden">🌳</div>
+      <div class="marker food">🍔</div>
+      <div class="marker entertainment">🎭</div>
+      <div class="marker museum">🏛️</div>
+    </div>
   </main>
 
   <dialog class="auth-dialog" id="authDialog">
@@ -82,8 +85,7 @@
     </form>
   </dialog>
 
+  <script src="script.js"></script>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="app.js"></script>
 </body>
 </html>
