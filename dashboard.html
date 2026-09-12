@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; url=../dashboard.html">
+    <title>TouchGrass</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open menu">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+    <header class = "Logo"> 
+
+    <div class="brand">
+        <h1>TouchGrass</h1>
+        <p>The best way to explore your neighborhood!</p>
+        </div>
+    </header>
+    
+    <div class="auth-buttons"> 
+        <button class="login-button">Login</button>
+        <button class="signup-button">Sign Up</button>
+    </div>
+
+    <nav class="dashboard-tabs" aria-label="Dashboard views">
+        <button class="dashboard-tab" type="button" data-view="pinned">
+            <span class="tab-icon" aria-hidden="true">📌</span>
+            <span class="tab-label">Pinned</span>
+        </button>
+        <button class="dashboard-tab" type="button" data-view="for-you">
+            <span class="tab-icon" aria-hidden="true">✨</span>
+            <span class="tab-label">For You</span>
+            <span class="tab-count">5</span>
+        </button>
+        <button class="dashboard-tab active" type="button" data-view="all" aria-current="page">
+            <span class="tab-icon" aria-hidden="true">🗺️</span>
+            <span class="tab-label">All</span>
+            <span class="tab-count">5</span>
+        </button>
+    </nav>
+
+    <section class="filter-sections">
+        <h2> Filters</h2>
+        <button class="filter-active">All</button>
+        <button class="filter-button">Music</button>
+        <button class="filter-button">Markets</button>
+        <button class="filter-button">Museums</button>
+        <button class="filter-button">Sports</button>
+        <button class="filter-button">Tech</button>
+        <button class="filter-button">Arts</button>
+        <button class="filter-button">Gardens</button>
+        <button class="filter-button">Food</button>
+        <button class="filter-button">Entertainment</button>
+        </section>
+
+            <section class="events">
+            <h2>Events</h2>
+            <div class="event-card">
+                 <div class="event-icon">🎵</div>
+
+                <div class="event-info">
+                    <h3>Rooftop Jazz Night</h3>
+                    <p>2026-09-20 · 19:00</p>
+                    <p>Meridian Rooftop, 5th & Oak</p>
+                    <strong>2 going <span>· 2 msgs</span></strong>
+                </div>
+            </div>
+
+
+            <div class="event-card">
+                <div class="event-icon">🛍️</div>
+
+                <div class="event-info">
+                    <h3>Sunday Farmers Market</h3>
+                    <p>2026-09-14 · 08:00</p>
+                    <p>Washington Square Park</p>
+                    <strong>1 going</strong>
+                </div>
+            </div>
+
+
+            <div class="event-card">
+                <div class="event-icon">💻</div>
+
+                <div class="event-info">
+                    <h3>Tech Talks: AI in 2026</h3>
+                    <p>2026-09-18 · 18:30</p>
+                    <p>Civic Hall, 6th Floor</p>
+                    <strong>1 going <span>· 1 msgs</span></strong>
+                </div>
+            </div>
+
+
+            <div class="event-card">
+                <div class="event-icon">⚽</div>
+
+                <div class="event-info">
+                    <h3>Pick-up Basketball</h3>
+                    <p>2026-09-13 · 10:00</p>
+                    <p>West 4th St. Courts</p>
+                    <strong>3 going</strong>
+                </div>
+            </div>
+
+
+            <div class="event-card">
+                <div class="event-icon">🎨</div>
+
+                <div class="event-info">
+                    <h3>Mural Painting Workshop</h3>
+                    <p>2026-09-21 · 11:00</p>
+                    <p>Bowery Wall, Houston & B</p>
+                    <strong>2 going</strong>
+                </div>
+            </div>
+
+        </section>
+
+    </aside>
+
+
+    <!-- RIGHT SIDE / MAP -->
+    <main class="map-area">
+
+        <!-- Temporary background until you add a real map -->
+        <div class="map-placeholder">
+
+            <!-- Zoom controls -->
+            <div class="zoom-controls">
+                <button>+</button>
+                <button>−</button>
+            </div>
+
+
+            <!-- Event markers -->
+            <div class="marker music">🎵</div>
+            <div class="marker market">🛍️</div>
+            <div class="marker tech">💻</div>
+            <div class="marker sports">⚽</div>
+            <div class="marker art">🎨</div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const sidebar = document.getElementById("sidebar");
+        const toggle = document.getElementById("sidebarToggle");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("visible");
+            toggle.classList.remove("hidden");
+        }
+
+        toggle.addEventListener("click", () => {
+            sidebar.classList.add("open");
+            overlay.classList.add("visible");
+            toggle.classList.add("hidden");
+        });
+
+        overlay.addEventListener("click", closeSidebar);
+
+        document.querySelectorAll(".dashboard-tab").forEach((tab) => {
+            tab.addEventListener("click", () => {
+                document.querySelectorAll(".dashboard-tab").forEach((item) => {
+                    item.classList.remove("active");
+                    item.removeAttribute("aria-current");
+                });
+                tab.classList.add("active");
+                tab.setAttribute("aria-current", "page");
+            });
+        });
+    </script>
+
+</body>
+
+</html>
