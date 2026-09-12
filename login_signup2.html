@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In / Sign Up</title>
+    <link rel="stylesheet" href="login_signup2.css" />
+  </head>
+  <body>
+    <div class="auth-card">
+      <div class="topbar">
+        <h1 class="title">Welcome</h1>
+        <div class="switcher" aria-label="Authentication options">
+          <button class="switch-btn active" type="button" data-target="signin">Sign in</button>
+          <button class="switch-btn" type="button" data-target="signup">Sign up</button>
+        </div>
+      </div>
+
+      <section id="signin" class="form-section active">
+        <p class="subtitle">Sign in to continue to your account.</p>
+
+        <form id="signin-form">
+          <div class="field-grid">
+            <div class="input-group">
+              <label for="signin-email">Email</label>
+              <input id="signin-email" type="email" placeholder="you@example.com" required />
+            </div>
+
+            <div class="input-group">
+              <label for="signin-password">Password</label>
+              <input id="signin-password" type="password" placeholder="Enter your password" required />
+            </div>
+          </div>
+
+          <div class="options-row">
+            <label class="checkbox-wrap">
+              <input type="checkbox" />
+              <span>Remember me</span>
+            </label>
+            <button id="forgot-password-btn" class="link-btn" type="button">Forgot password?</button>
+          </div>
+
+          <div id="reset-panel" class="reset-panel">
+            <div class="input-group">
+              <label for="reset-email">Email address</label>
+              <input id="reset-email" type="email" placeholder="you@example.com" required />
+            </div>
+
+            <div class="reset-actions">
+              <button class="secondary-btn" type="button" id="cancel-reset">Cancel</button>
+              <button class="submit-btn" id="send-reset-btn" type="button" style="margin-top: 0; flex: 1;">Send reset link</button>
+            </div>
+          </div>
+
+          <button class="submit-btn" type="submit">Sign in</button>
+        </form>
+      </section>
+
+      <section id="signup" class="form-section">
+        <p class="subtitle">Create a new account to get started.</p>
+
+        <form id="signup-form">
+          <div class="field-grid two-col">
+            <div class="input-group">
+              <label for="signup-name">Full name</label>
+              <input id="signup-name" type="text" placeholder="Enter Your Name" required />
+            </div>
+
+            <div class="input-group">
+              <label for="signup-email">Email</label>
+              <input id="signup-email" type="email" placeholder="you@example.com" required />
+            </div>
+          </div>
+
+          <div class="field-grid" style="margin-top: 18px;">
+            <div class="input-group">
+              <label for="signup-password">Password</label>
+              <input id="signup-password" type="password" placeholder="Min. 6 characters" required />
+            </div>
+
+            <div class="input-group">
+              <label for="signup-confirm">Confirm password</label>
+              <input id="signup-confirm" type="password" placeholder="Repeat your password" required />
+            </div>
+          </div>
+
+          <button class="submit-btn" type="submit">Create account</button>
+        </form>
+      </section>
+
+      <div id="status" class="status" aria-live="polite"></div>
+    </div>
+
+    <script>
+      const tabs = document.querySelectorAll('.switch-btn');
+      const sections = {
+        signin: document.getElementById('signin'),
+        signup: document.getElementById('signup')
+      };
+      const status = document.getElementById('status');
+      const forgotPasswordBtn = document.getElementById('forgot-password-btn');
+      const resetPanel = document.getElementById('reset-panel');
+      const cancelResetBtn = document.getElementById('cancel-reset');
+      const sendResetBtn = document.getElementById('send-reset-btn');
+      const resetEmailInput = document.getElementById('reset-email');
+
+      function showStatus(message, type) {
+        status.textContent = message;
+        status.className = `status show ${type}`;
+      }
+
+      function switchSection(target) {
+        tabs.forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.target === target);
+        });
+
+        Object.entries(sections).forEach(([key, section]) => {
+          section.classList.toggle('active', key === target);
+        });
+
+        status.className = 'status';
+        resetPanel.classList.remove('visible');
+      }
+
+      forgotPasswordBtn.addEventListener('click', function () {
+        resetPanel.classList.add('visible');
+        resetEmailInput.focus();
+      });
+
+      cancelResetBtn.addEventListener('click', function () {
+        resetPanel.classList.remove('visible');
+        resetEmailInput.value = '';
+      });
+
+      sendResetBtn.addEventListener('click', async function () {
+        const resetEmail = resetEmailInput.value.trim();
+
+        if (!resetEmail) {
+          showStatus('Please enter your email address.', 'error');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: resetEmail })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showStatus(data.message || 'Unable to send reset link.', 'error');
+            return;
+          }
+
+          showStatus(data.message || 'Password reset link sent.', 'success');
+          resetEmailInput.value = '';
+          resetPanel.classList.remove('visible');
+        } catch (error) {
+          showStatus('Unable to reach the server. Please try again.', 'error');
+        }
+      });
+
+      tabs.forEach((btn) => {
+        btn.addEventListener('click', () => switchSection(btn.dataset.target));
+      });
+
+      document.getElementById('signin-form').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const email = document.getElementById('signin-email').value.trim();
+        const password = document.getElementById('signin-password').value;
+
+        if (!email || !password) {
+          showStatus('Please enter your email address and password.', 'error');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showStatus(data.message || 'Login failed.', 'error');
+            return;
+          }
+
+          showStatus(`Welcome back, ${data.user.name}! You are now signed in.`, 'success');
+        } catch (error) {
+          showStatus('Unable to reach the server. Please try again.', 'error');
+        }
+      });
+
+      document.getElementById('signup-form').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const name = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const confirm = document.getElementById('signup-confirm').value;
+
+        if (!name || !email) {
+          showStatus('Please fill in your name and email.', 'error');
+          return;
+        }
+
+        if (password.length < 6) {
+          showStatus('Password must be at least 6 characters long.', 'error');
+          return;
+        }
+
+        if (password !== confirm) {
+          showStatus('Passwords do not match. Please try again.', 'error');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showStatus(data.message || 'Signup failed.', 'error');
+            return;
+          }
+
+          showStatus('Account created successfully! You can now sign in.', 'success');
+          switchSection('signin');
+        } catch (error) {
+          showStatus('Unable to reach the server. Please try again.', 'error');
+        }
+      });
+    </script>
+  </body>
+</html>
