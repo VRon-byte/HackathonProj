@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TouchGrass</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-header-row">
+      <div class="brand">
+        <h1>TouchGrass</h1>
+        <p>Explore what's happening near you</p>
+      </div>
+    </div>
+
+    <div class="auth-buttons">
+      <button class="login-button">Login</button>
+      <button class="signup-button">Sign Up</button>
+    </div>
+
+    <nav class="event-views" aria-label="Event views">
+      <button class="event-view active" id="allEventsView" type="button" data-view="all" aria-pressed="true">🗺️ All Events</button>
+      <button class="event-view" type="button" data-view="pinned" aria-pressed="false">📌 Pinned Events</button>
+    </nav>
+
+    <section class="filter-sections">
+      <h2>Filters</h2>
+      <div class="filter-buttons">
+        <button class="filter-active" type="button" data-category="All">All</button>
+        <button class="filter-button" type="button" data-category="Music">Music</button>
+        <button class="filter-button" type="button" data-category="Markets">Markets</button>
+        <button class="filter-button" type="button" data-category="Museums">Museums</button>
+        <button class="filter-button" type="button" data-category="Sports">Sports</button>
+        <button class="filter-button" type="button" data-category="Tech">Tech</button>
+        <button class="filter-button" type="button" data-category="Arts">Arts</button>
+        <button class="filter-button" type="button" data-category="Gardens">Gardens</button>
+        <button class="filter-button" type="button" data-category="Food">Food</button>
+        <button class="filter-button" type="button" data-category="Entertainment">Entertainment</button>
+      </div>
+    </section>
+
+    <section class="events">
+      <h2>Nearby Events</h2>
+      <p class="no-pinned-events" id="noPinnedEvents" hidden>No pinned events yet.</p>
+      <p class="no-events-found" id="noEventsFound" hidden>No events found.</p>
+      <div id="eventList"></div>
+    </section>
+
+  </aside>
+
+  <main class="map-area">
+    <div class="map-placeholder">
+      <div class="zoom-controls">
+        <button>+</button>
+        <button>−</button>
+      </div>
+      <div class="marker music">🎵</div>
+      <div class="marker market">🛍️</div>
+      <div class="marker tech">💻</div>
+      <div class="marker sports">⚽</div>
+      <div class="marker art">🎨</div>
+      <div class="marker garden">🌳</div>
+      <div class="marker food">🍔</div>
+      <div class="marker entertainment">🎭</div>
+      <div class="marker museum">🏛️</div>
+    </div>
+  </main>
+
+  <dialog class="auth-dialog" id="authDialog">
+    <form class="auth-form" id="authForm">
+      <button class="auth-dialog-close" id="authDialogClose" type="button">✕</button>
+      <h2 id="authTitle">Log in to TouchGrass</h2>
+      <p class="auth-dialog-copy" id="authCopy">Find and save events around you.</p>
+      <label id="nameField" hidden>Display name<input id="authName" type="text" autocomplete="name"></label>
+      <label>Email<input id="authEmail" type="email" autocomplete="email" required></label>
+      <label>Password<input id="authPassword" type="password" autocomplete="current-password" minlength="6" required></label>
+      <button class="auth-submit" type="submit" id="authSubmit">Log In</button>
+      <p class="auth-message" id="authMessage" role="status"></p>
+      <button class="auth-switch" type="button" id="authSwitch">Need an account? Sign up</button>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
