@@ -32,13 +32,13 @@
                 <!-- Hidden user-profile block for internal debugging if needed -->
                 <pre id="user-profile" style="display: none;"></pre>
                 <a class="login-button" href="profile.html">Profile</a>
-                <a class="login-button" href="/logout">Logout</a>
+                <button class="login-button" onclick="client.logout({logoutParams:{returnTo:window.location.href}})">Logout</button>
             </div>
 
             <!-- Displayed strictly when user IS NOT logged in -->
             <div id="view-unauthenticated" hidden>
-                <a class="login-button" href="login.html">Login</a>
-                <a class="signup-button" href="login_signup2.html">Sign Up</a>
+                <button class="login-button" onclick="client.loginWithRedirect()">Login</button>
+                <button class="signup-button" onclick="client.loginWithRedirect({authorizationParams:{screen_hint:'signup'}})">Sign Up</button>
             </div>
         </div>
 
@@ -92,10 +92,12 @@
     <!-- ========================================== -->
     <!-- MERGED: AUTH0 ENGINE AND RUNTIME CONFIG    -->
     <!-- ========================================== -->
-    <!-- Official Auth0 Single Page Application SDK -->
-    <!-- Authentication is handled by the Express server; no browser Auth0 SDK is loaded. -->
+    
+    <!-- 1. Official Auth0 Single Page Application SDK -->
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.18/auth0-spa-js.production.js"></script>
 
-    <script>if (false) {
+    <!-- 2. Auth0 Initialization and UI Logic -->
+    <script>
       // Layout controller helpers
       const displayView = name => ['loading', 'error', 'authenticated', 'unauthenticated'].forEach(v => {
           const element = document.getElementById(`view-${v}`);
@@ -111,8 +113,10 @@
           // Initialize connection with your secure credentials
           window.client = await auth0.createAuth0Client({
             domain: 'dev-na3t3nvz7h4erpep.us.auth0.com',
-            clientId: 'JHucZs8n8cJrY1HxlAtjFK3edq76UPRb',
-            authorizationParams: { redirect_uri: location.origin },
+            clientId: 'jF1hl8MaOoakXzqwkDbhmQje6NBLL7I6',
+            authorizationParams: { 
+              redirect_uri: window.location.href 
+            },
           });
 
           // Check if Auth0 is responding back with an active identity error
@@ -147,12 +151,7 @@
             displayView("error");
         }
       })();
-    }
     </script>
     <script src="auth-ui.js"></script>
 </body>
 </html>
-
-
-
-
