@@ -14,8 +14,9 @@
                 <span class="edit-badge">✏️</span>
             </div>
             <div class="user-info">
-                <h1 class="user-name">Your Name</h1>
-                <p id="auth-email" class="user-meta">Signed in with Auth0</p>
+                
+                <h1 id="auth-user-name" class="user-name">Loading...</h1>
+                <p id="auth-email" class="user-meta">Loading Auth0 profile...</p>
                 <p class="user-bio">Add bio in profile.</p>
                 <div class="user-tags">
                     <span class="event-tag">📍 4 event types</span>
@@ -77,6 +78,7 @@
             <h2><strong>ACCOUNT</strong></h2>
             <h3>Security and account management</h3>
 
+            
             <form action="/update-password" method="POST">
                 <strong>Change Password</strong>
                 <p>Last changed 3 months ago</p>
@@ -257,7 +259,6 @@
                 <h2>NEARBY RADIUS</h2>
                 <h3>Distance used for 'Nearby' event alerts</h3>
 
-                <!-- Removed the form wrapper entirely -->
                 <div class="radius-options">
                     <input type="radio" id="OneMile" name="radius" value="1">
                     <label for="OneMile">1 mile</label>
@@ -390,10 +391,52 @@
                 </a>
             </div>
 
-            <button type="button" class="sign-out-btn">Sign out</button>
+            <button id="logout-btn" type="button" class="sign-out-btn">Sign out</button>
         </div>
     </main>
 
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.18/auth0-spa-js.production.js"></script>
+
+    <script>
+        (async () => {
+            try {
+             
+                const client = await auth0.createAuth0Client({
+                    domain: 'dev-na3t3nvz7h4erpep.us.auth0.com',
+                    clientId: 'jF1hl8MaOoakXzqwkDbhmQje6NBLL7I6',
+                    authorizationParams: { 
+                        redirect_uri: window.location.origin + window.location.pathname 
+                    },
+                });
+
+                if (await client.isAuthenticated()) {
+                    const user = await client.getUser();
+                    
+                    const profilePic = document.getElementById('profile-picture');
+                    profilePic.src = user.picture;
+                    profilePic.hidden = false;
+                    
+                    document.getElementById('auth-user-name').textContent = user.name || user.nickname;
+                    document.getElementById('auth-email').textContent = `Signed in as: ${user.email}`;
+
+                    document.getElementById('Name').value = user.name || '';
+                    document.getElementById('UserName').value = user.nickname || '';
+                    document.getElementById('Email').value = user.email || '';
+
+                    document.getElementById('logout-btn').addEventListener('click', () => {
+                        client.logout({ logoutParams: { returnTo: window.location.origin } });
+                    });
+                } else {
+                    
+                    window.location.href = 'index.html';
+                }
+            } catch (e) {
+                console.error("Auth0 profile error:", e);
+            }
+        })();
+    </script>
+
+  
     <script src="profile.js"></script>
 </body>
 </html>
