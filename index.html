@@ -110,12 +110,13 @@
 
       (async () => {
         try {
-          // Initialize connection with your secure credentials
+          // Initialize Auth0 Connection
           window.client = await auth0.createAuth0Client({
             domain: 'dev-na3t3nvz7h4erpep.us.auth0.com',
             clientId: 'jF1hl8MaOoakXzqwkDbhmQje6NBLL7I6',
+            cacheLocation: 'localstorage', // <--- ADDED HERE
             authorizationParams: { 
-              redirect_uri: window.location.origin + window.location.pathname
+              redirect_uri: window.location.origin + window.location.pathname 
             },
           });
 
@@ -128,13 +129,13 @@
             return;
           }
 
-          // Clean up technical URL variables after verification redirect handshake
+          // Clean up technical URL variables after successful login handshake
           if (location.search.includes("code=") && location.search.includes("state=")) {
             await window.client.handleRedirectCallback();
             history.replaceState({}, "", location.pathname);
           }
 
-          // If the profile token is validated, parse metadata and show the logged-in view
+          // Show logged-in view if user is authenticated
           if (await window.client.isAuthenticated()) {
             const user = await window.client.getUser();
             setTextContent("user-email", user.email);
@@ -143,7 +144,7 @@
             return;
           }
 
-          // Default state if user is unauthenticated
+          // Show Login/Sign Up buttons if not logged in
           displayView("unauthenticated");
         } catch (e) {
             console.error("Auth0 failed to initialize:", e);
