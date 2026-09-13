@@ -38,4 +38,18 @@ project-root/
 │   └── database_changes/
 
 
+## Email notifications
+
+The profile Alerts tab now saves event categories, alert toggles, ZIP code, and radius through the Node server. When email alerts and nearby events are enabled, the server checks Ticketmaster every 15 minutes and sends new matches through Resend.
+
+Add these values to `.env` or `auth0.env` without committing the API key:
+
+```text
+RESEND_API_KEY=re_xxxxxxxxx
+NOTIFICATION_FROM_EMAIL=TouchGrass <alerts@your-verified-domain.com>
+```
+
+The sender domain must be verified in Resend. Start the app with `npm start`; preferences are stored in the ignored `.data/` directory.
+
+
 

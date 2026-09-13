@@ -120,6 +120,7 @@ const authEmail = document.getElementById('auth-email');
 const nameInput = document.getElementById('Name');
 const usernameInput = document.getElementById('UserName');
 const locationInput = document.getElementById('Location');
+const notificationZipInput = document.getElementById('NotificationZip');
 const bioInput = document.getElementById('Bio');
 const headerName = document.querySelector('.user-name');
 const headerMeta = document.querySelector('.user-meta');
@@ -128,6 +129,75 @@ const headerBio = document.querySelector('.user-bio');
 // Load any custom changes you made locally
 const profileStorageKey = 'touchgrass-profile';
 const profilePreferences = JSON.parse(localStorage.getItem(profileStorageKey) || '{}');
+let authenticatedEmail = '';
+
+const notificationInputs = document.querySelectorAll('.tab-content.Event input[type="checkbox"], .tab-content.Alert input[type="checkbox"]');
+const radiusInputs = document.querySelectorAll('.tab-content.Alert input[name="radius"]');
+const categoryMap = {
+    bikerides: 'Sports',
+    parties: 'Miscellaneous',
+    livemusic: 'Music',
+    foodanddrink: 'Miscellaneous',
+    sportsandfitness: 'Sports',
+    artsandculture: 'Arts',
+    techandnetworking: 'Miscellaneous',
+    outdoorandnature: 'Sports',
+    familyfriendly: 'Miscellaneous',
+};
+
+function collectNotificationPreferences() {
+    return {
+        email: authenticatedEmail || document.getElementById('Email')?.value || '',
+        location: locationInput?.value || '',
+        zip: notificationZipInput?.value || '',
+        radius: document.querySelector('.tab-content.Alert input[name="radius"]:checked')?.value || '5',
+        categories: [...eventCheckboxes].filter((input) => input.checked).map((input) => categoryMap[input.name] || input.name),
+        emailAlert: document.querySelector('input[name="emailalert"]')?.checked || false,
+        newEventsNearby: document.querySelector('input[name="neweventsnearby"]')?.checked || false,
+        eventReminders: document.querySelector('input[name="eventreminders"]')?.checked || false,
+    };
+}
+
+function applyNotificationPreferences(preferences) {
+    if (!preferences) return;
+    if (notificationZipInput) notificationZipInput.value = preferences.zip || '';
+    eventCheckboxes.forEach((input) => { input.checked = preferences.categories?.includes(categoryMap[input.name] || input.name) || false; });
+    document.querySelector('input[name="emailalert"]').checked = Boolean(preferences.emailAlert);
+    document.querySelector('input[name="neweventsnearby"]').checked = preferences.newEventsNearby !== false;
+    document.querySelector('input[name="eventreminders"]').checked = preferences.eventReminders !== false;
+    radiusInputs.forEach((input) => { input.checked = input.value === String(preferences.radius || 5); });
+    updateEventCount();
+}
+
+async function saveNotificationPreferences() {
+    const preferences = collectNotificationPreferences();
+    if (!authenticatedEmail) return;
+    try {
+        const response = await fetch('/api/profile/preferences', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(preferences),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Could not save notification preferences.');
+    } catch (error) {
+        console.error(error);
+        alert(error.message);
+    }
+}
+
+async function loadNotificationPreferences() {
+    if (!authenticatedEmail) return;
+    try {
+        const response = await fetch(`/api/profile/preferences?email=${encodeURIComponent(authenticatedEmail)}`);
+        if (response.ok) {
+            const preferences = await response.json();
+            if (preferences.configured) applyNotificationPreferences(preferences);
+        }
+    } catch (error) {
+        console.error('Could not load notification preferences.', error);
+    }
+}
 
 // Updates the big header when you type in the text boxes
 function updateProfileCard() {
@@ -152,6 +222,7 @@ if (bioInput) bioInput.addEventListener('input', updateProfileCard);
 // ---------------------------------------------------------
 window.renderAuthProfile = function(auth0User) {
     if (!auth0User) return;
+    authenticatedEmail = auth0User.email || '';
     
     // 1. Load saved text into the input boxes FIRST
     if (nameInput) nameInput.value = profilePreferences.displayName || auth0User.name || auth0User.nickname || '';
@@ -172,7 +243,12 @@ window.renderAuthProfile = function(auth0User) {
     
     // 4. Push those loaded text box values up to the Header!
     updateProfileCard();
+    loadNotificationPreferences();
 };
+
+notificationInputs.forEach((input) => input.addEventListener('change', saveNotificationPreferences));
+radiusInputs.forEach((input) => input.addEventListener('change', saveNotificationPreferences));
+notificationZipInput?.addEventListener('change', saveNotificationPreferences);
 
 // Handle saving your edits (like Bio and Custom Picture) locally
 if (profileForm) {
@@ -187,7 +263,8 @@ if (profileForm) {
 
         const saveProfile = () => {
             localStorage.setItem(profileStorageKey, JSON.stringify(profilePreferences));
-            alert('Profile saved on this device.');
+            saveNotificationPreferences();
+            alert('Profile and notification preferences saved.');
             updateProfileCard(); 
         };
         

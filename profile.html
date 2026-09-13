@@ -72,6 +72,9 @@
                     <label for="Location">Location</label>
                     <input type="text" id="Location" name="location" placeholder="e.g. Chicago, IL">
 
+                    <label for="NotificationZip">ZIP code for event alerts</label>
+                    <input type="text" id="NotificationZip" name="notificationZip" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="e.g. 60601">
+
                     <span></span>
                     <button class="profile-save-btn" type="submit">Save profile</button>
                 </form>
@@ -400,7 +403,9 @@
 
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.18/auth0-spa-js.production.js"></script>
 
-    <!-- 2. Initialize Auth0 and pass data to profile.js (THIS WAS MISSING!) -->
+    <script src="profile.js"></script>
+
+    <!-- 2. Initialize Auth0 and pass data to profile.js -->
     <script>
         (async () => {
             try {
@@ -433,9 +438,6 @@
             }
         })();
     </script>
-
-    <!-- 3. Load your UI script -->
-    <script src="profile.js"></script>
 
 </body>
 </html>
