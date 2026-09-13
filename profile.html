@@ -396,6 +396,43 @@
     </main>
 
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.18/auth0-spa-js.production.js"></script>
+
+    <!-- 2. Initialize Auth0 and pass data to profile.js (THIS WAS MISSING!) -->
+    <script>
+        (async () => {
+            try {
+                const client = await auth0.createAuth0Client({
+                    domain: 'dev-na3t3nvz7h4erpep.us.auth0.com',
+                    clientId: 'jF1hl8MaOoakXzqwkDbhmQje6NBLL7I6',
+                    cacheLocation: 'localstorage',
+                    authorizationParams: { 
+                        redirect_uri: window.location.origin + window.location.pathname 
+                    },
+                });
+
+                if (await client.isAuthenticated()) {
+                    const user = await client.getUser();
+                    
+                    // Pass the secure Auth0 data over to your profile.js file!
+                    if (typeof window.renderAuthProfile === 'function') {
+                        window.renderAuthProfile(user);
+                    }
+
+                    // Wire up the Sign out button
+                    document.getElementById('logout-btn').addEventListener('click', () => {
+                        client.logout({ logoutParams: { returnTo: window.location.origin } });
+                    });
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } catch (e) {
+                console.error("Auth0 profile error:", e);
+            }
+        })();
+    </script>
+
+    <!-- 3. Load your UI script -->
     <script src="profile.js"></script>
+
 </body>
 </html>
