@@ -41,6 +41,13 @@ dropPinButton.addEventListener("click", () => {
 
 clearPinsButton.addEventListener("click", () => {
     if (pinLayer) pinLayer.clearLayers();
+    localStorage.removeItem(CUSTOM_EVENTS_STORAGE_KEY);
+    for (let index = localEvents.length - 1; index >= 0; index -= 1) {
+        if (localEvents[index].id.startsWith("custom-pin-")) localEvents.splice(index, 1);
+    }
+    currentEventsList = currentEventsList.filter((event) => !event.id.startsWith("custom-pin-"));
+    pinnedEventIds = new Set([...pinnedEventIds].filter((id) => !id.startsWith("custom-pin-")));
+    renderEvents(currentEventsList);
 });
 
 // Map click logic: triggers the modal when dropping a pin
@@ -173,11 +180,11 @@ document.querySelectorAll(".zoom-controls button").forEach((button, index) => {
 });
 
 const localEvents = [
-    { id: "community-market", title: "Community Market", starts_at: "2026-09-19T09:00:00", venue_name: "Downtown Plaza", category: "Markets", latitude: 40.716, longitude: -74.006, emoji: "🛍️" },
-    { id: "live-music-night", title: "Live Music Night", starts_at: "2026-09-19T19:00:00", venue_name: "The Town Hall", category: "Music", latitude: 40.72, longitude: -74.01, emoji: "🎵" },
-    { id: "neighborhood-art", title: "Neighborhood Art Walk", starts_at: "2026-09-20T14:00:00", venue_name: "Main Street Arts District", category: "Arts", latitude: 40.725, longitude: -74.002, emoji: "🎨" },
-    { id: "pickup-sports", title: "Pick-up Basketball", starts_at: "2026-09-20T10:00:00", venue_name: "City Recreation Center", category: "Sports", latitude: 40.709, longitude: -74.015, emoji: "🏀" },
-    { id: "community-tech-talk", title: "Community Tech Talk", starts_at: "2026-09-22T18:30:00", venue_name: "Public Library", category: "Tech", latitude: 40.729, longitude: -74.008, emoji: "💻" }
+    { id: "community-market", title: "Community Market", starts_at: "2026-09-19T09:00:00", venue_name: "Downtown Plaza", category: "Markets", latitude: 33.5779, longitude: -101.8552, emoji: "🛍️" },
+    { id: "live-music-night", title: "Live Music Night", starts_at: "2026-09-19T19:00:00", venue_name: "The Town Hall", category: "Music", latitude: 33.584, longitude: -101.848, emoji: "🎵" },
+    { id: "neighborhood-art", title: "Neighborhood Art Walk", starts_at: "2026-09-20T14:00:00", venue_name: "Main Street Arts District", category: "Arts", latitude: 33.571, longitude: -101.862, emoji: "🎨" },
+    { id: "pickup-sports", title: "Pick-up Basketball", starts_at: "2026-09-20T10:00:00", venue_name: "City Recreation Center", category: "Sports", latitude: 33.592, longitude: -101.858, emoji: "🏀" },
+    { id: "community-tech-talk", title: "Community Tech Talk", starts_at: "2026-09-22T18:30:00", venue_name: "Public Library", category: "Tech", latitude: 33.579, longitude: -101.869, emoji: "💻" }
 ];
 
 const CUSTOM_EVENTS_STORAGE_KEY = "touchgrass-custom-events";
