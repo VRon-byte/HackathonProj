@@ -20,6 +20,39 @@ const markerLayer = hasLeaflet ? L.layerGroup().addTo(map) : null;
 let selectedCategory = "";
 let pinnedEventIds = new Set();          // ← add this
 let currentView = "all";                 // ← add this too
+const dropPinButton = document.querySelector("#drop-pin-button");
+const clearPinsButton = document.querySelector("#clear-pins-button");
+
+let isDroppingPin = false;
+const pinLayer = L.layerGroup().addTo(map);
+
+dropPinButton.addEventListener("click", () => {
+    isDroppingPin = !isDroppingPin;
+    dropPinButton.classList.toggle("filter-active", isDroppingPin);
+    dropPinButton.textContent = isDroppingPin
+        ? "Click the map..."
+        : "Drop a pin";
+});
+
+clearPinsButton.addEventListener("click", () => {
+    pinLayer.clearLayers();
+});
+
+map.on("click", (event) => {
+    if (!isDroppingPin) return;
+
+    const { lat, lng } = event.latlng;
+
+    const pin = L.marker([lat, lng]).bindPopup(
+        `Pinned location<br>${lat.toFixed(5)}, ${lng.toFixed(5)}`
+    );
+
+    pin.addTo(pinLayer).openPopup();
+
+    isDroppingPin = false;
+    dropPinButton.classList.remove("filter-active");
+    dropPinButton.textContent = "Drop a pin";
+});
 
 document.addEventListener("click", (e) => {
     if (e.target.matches(".pin-btn")) {
@@ -182,3 +215,5 @@ liveEventSearch.addEventListener("submit", async (event) => {
 });
 
 loadNearbyEvents();
+
+

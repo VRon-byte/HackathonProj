@@ -35,7 +35,18 @@ button { cursor: pointer; }
         repeating-linear-gradient(115deg, transparent 0 86px, rgba(74, 128, 74, .18) 87px 88px, transparent 89px 172px),
         repeating-linear-gradient(2deg, transparent 0 136px, rgba(116, 166, 100, .12) 137px 139px, transparent 140px 270px);
 }
+.map-area {
+    position: relative;
+}
 
+.map-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    gap: 0.5rem;
+}
 #map::before {
     position: absolute;
     inset: 0;
