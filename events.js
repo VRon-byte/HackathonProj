@@ -12,7 +12,11 @@ form.addEventListener('submit', async (event) => {
 
   try {
     const response = await fetch(`/api/events?${params}`);
-    const data = await response.json();
+    const body = await response.text();
+    if (!(response.headers.get('content-type') || '').includes('application/json')) {
+      throw new Error('The event service is unavailable. Open the GitHub Pages site or start the app server, then try again.');
+    }
+    const data = JSON.parse(body);
     if (!response.ok) throw new Error(data.error);
     const scope = data.radius === 'nationwide' ? 'nationwide' : `within ${data.radius} miles of ${data.zip}`;
     status.textContent = data.events.length ? `${data.events.length} events found ${scope}` : 'No events found in this area.';

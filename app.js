@@ -326,7 +326,7 @@ async function fetchLiveEvents(zip, radius) {
 
     if (!isGitHubPages) {
         const response = await fetch(`/api/events?${params}`, { cache: "no-store" });
-        const data = await response.json();
+        const data = await readJsonResponse(response);
         if (!response.ok) throw new Error(data.error || "Ticketmaster could not load events right now.");
         return data.events.map(normalizeLiveEvent);
     }
@@ -344,7 +344,7 @@ async function fetchLiveEvents(zip, radius) {
         ticketmasterParams.set("unit", "miles");
     }
     const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${ticketmasterParams}`, { cache: "no-store" });
-    const data = await response.json();
+    const data = await readJsonResponse(response);
     if (!response.ok) throw new Error(data.fault?.faultstring || "Ticketmaster could not load events right now.");
     return (data._embedded?.events || []).map((eventItem) => {
         const venue = eventItem._embedded?.venues?.[0];
@@ -362,6 +362,19 @@ async function fetchLiveEvents(zip, radius) {
             url: eventItem.url,
         });
     });
+}
+
+async function readJsonResponse(response) {
+    const contentType = response.headers.get("content-type") || "";
+    const body = await response.text();
+    if (!contentType.includes("application/json")) {
+        throw new Error("The event service is unavailable. Open the GitHub Pages site or start the app server, then try again.");
+    }
+    try {
+        return JSON.parse(body);
+    } catch (error) {
+        throw new Error("The event service returned an invalid response. Please try again.");
+    }
 }
 
 function normalizeLiveEvent(eventItem) {
