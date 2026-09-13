@@ -18,8 +18,9 @@ const hasLeaflet = typeof L !== "undefined";
 const map = hasLeaflet ? L.map("map").setView(DEFAULT_CENTER, DEFAULT_ZOOM) : null;
 const markerLayer = hasLeaflet ? L.layerGroup().addTo(map) : null;
 let selectedCategory = "";
-let pinnedEventIds = new Set();          // ← add this
-let currentView = "all";                 // ← add this too
+let pinnedEventIds = new Set();
+let currentView = "all";
+let currentEventsList = []; // Stores the current events (local or live) for filtering
 const dropPinButton = document.querySelector("#drop-pin-button");
 const clearPinsButton = document.querySelector("#clear-pins-button");
 
@@ -54,12 +55,35 @@ map.on("click", (event) => {
     dropPinButton.textContent = "Drop a pin";
 });
 
+// Handle clicking the custom pin buttons on event cards
 document.addEventListener("click", (e) => {
     if (e.target.matches(".pin-btn")) {
+        e.stopPropagation(); // Prevent the map from panning when pinning
         const id = e.target.dataset.pinId;
         pinnedEventIds.has(id) ? pinnedEventIds.delete(id) : pinnedEventIds.add(id);
-        loadNearbyEvents(); // re-render to reflect pin state
+        renderEvents(currentEventsList); // re-render to reflect pin state
     }
+});
+
+// Handle toggling between "All Events" and "Pinned Events" views
+const eventViewButtons = document.querySelectorAll(".event-view");
+eventViewButtons.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        // Remove active state from all view buttons
+        eventViewButtons.forEach(b => {
+            b.classList.remove("active");
+            b.setAttribute("aria-pressed", "false");
+        });
+        
+        // Add active state to clicked button
+        const targetBtn = e.currentTarget;
+        targetBtn.classList.add("active");
+        targetBtn.setAttribute("aria-pressed", "true");
+        
+        // Update view state and re-render the list
+        currentView = targetBtn.dataset.view;
+        renderEvents(currentEventsList);
+    });
 });
 
 if (!hasLeaflet) {
@@ -105,20 +129,30 @@ function formatDate(value) {
 function renderEvent(event) {
     const card = document.createElement("article");
     card.className = "event-card";
+    const isPinned = pinnedEventIds.has(event.id);
+    
     card.innerHTML = `
         <div class="event-icon">${event.emoji || "📅"}</div>
         <div class="event-info">
-        <h3>${escapeHtml(event.title)}</h3>
-        <p>${escapeHtml(formatDate(event.starts_at))}</p>
-        <p>${escapeHtml(event.venue_name || event.venue_address || "Location to be announced")}</p>
-        <p>${escapeHtml(event.category || "Uncategorized")}</p>
+            <h3>${escapeHtml(event.title)}</h3>
+            <p>${escapeHtml(formatDate(event.starts_at))}</p>
+            <p>${escapeHtml(event.venue_name || event.venue_address || "Location to be announced")}</p>
+            <p>${escapeHtml(event.category || "Uncategorized")}</p>
         </div>
+        <button class="pin-btn ${isPinned ? 'pinned' : ''}" data-pin-id="${event.id}" aria-label="${isPinned ? 'Unpin event' : 'Pin event'}">
+            ${isPinned ? '📌 Pinned' : '📍 Pin'}
+        </button>
     `;
-    if (map && Number.isFinite(event.latitude) && Number.isFinite(event.longitude)) {
-        card.addEventListener("click", () => map.setView([event.latitude, event.longitude], 16));
-    } else if (event.url) {
-        card.addEventListener("click", () => window.open(event.url, "_blank", "noopener,noreferrer"));
-    }
+    
+    // Panning to the marker when clicking the card (ignoring the pin button)
+    card.addEventListener("click", (e) => {
+        if (e.target.matches('.pin-btn')) return;
+        if (map && Number.isFinite(event.latitude) && Number.isFinite(event.longitude)) {
+            map.setView([event.latitude, event.longitude], 16);
+        } else if (event.url) {
+            window.open(event.url, "_blank", "noopener,noreferrer");
+        }
+    });
     return card;
 }
 
@@ -132,18 +166,24 @@ function escapeHtml(value) {
 }
 
 function renderEvents(events) {
+    currentEventsList = events; // Save the current dataset for filtering
     if (markerLayer) markerLayer.clearLayers();
     eventList.replaceChildren();
 
-    if (events.length === 0) {
-        eventStatus.textContent = "No events found in this area.";
+    // Filter events if the user is looking at the pinned view
+    const displayedEvents = currentView === "pinned" 
+        ? events.filter(e => pinnedEventIds.has(e.id)) 
+        : events;
+
+    if (displayedEvents.length === 0) {
+        eventStatus.textContent = currentView === "pinned" ? "No pinned events found." : "No events found in this area.";
         return;
     }
 
-    eventStatus.textContent = `${events.length} event${events.length === 1 ? "" : "s"} found`;
+    eventStatus.textContent = `${displayedEvents.length} event${displayedEvents.length === 1 ? "" : "s"} found`;
     const cards = document.createDocumentFragment();
 
-    events.forEach((event) => {
+    displayedEvents.forEach((event) => {
         if (markerLayer && Number.isFinite(event.latitude) && Number.isFinite(event.longitude)) {
             const marker = L.marker([event.latitude, event.longitude]);
             marker.bindPopup(`
@@ -208,12 +248,14 @@ liveEventSearch.addEventListener("submit", async (event) => {
         });
         renderEvents(liveEvents);
         const scope = radius === "nationwide" ? "nationwide" : `within ${radius} miles of ${zip}`;
-        eventStatus.textContent = liveEvents.length ? `${liveEvents.length} live events found ${scope}` : "No live events found in this area.";
+        
+        // Avoid overriding the count text if we filtered it out in the renderEvents call 
+        if (currentView !== "pinned") {
+            eventStatus.textContent = liveEvents.length ? `${liveEvents.length} live events found ${scope}` : "No live events found in this area.";
+        }
     } catch (error) {
         eventStatus.textContent = error.message;
     }
 });
 
 loadNearbyEvents();
-
-

@@ -165,6 +165,7 @@ button { cursor: pointer; }
     display: flex;
     gap: 10px;
     padding: 12px 12px 12px 14px;
+    padding-right: 75px; /* Ensures layout doesn't overlap absolute positioned button */
     border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--raised);
@@ -202,7 +203,29 @@ button { cursor: pointer; }
 }
 .zoom-controls button:hover { border-color: #baf2a7; background: #baf2a7; color: #0b1a0b; }
 
-@media (max-width: 700px) {
-    .map-area { inset: 0; }
-    .sidebar { width: min(350px, 88vw); }
+/* Pin Button Styles */
+.pin-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    z-index: 2;
+    transition: all 0.15s ease;
+}
+
+.pin-btn:hover {
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.pin-btn.pinned {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
 }
