@@ -17,6 +17,17 @@ const eventStatus = document.querySelector("#event-status");
 const hasLeaflet = typeof L !== "undefined";
 const map = hasLeaflet ? L.map("map").setView(DEFAULT_CENTER, DEFAULT_ZOOM) : null;
 const markerLayer = hasLeaflet ? L.layerGroup().addTo(map) : null;
+let selectedCategory = "";
+let pinnedEventIds = new Set();          // ← add this
+let currentView = "all";                 // ← add this too
+
+document.addEventListener("click", (e) => {
+    if (e.target.matches(".pin-btn")) {
+        const id = e.target.dataset.pinId;
+        pinnedEventIds.has(id) ? pinnedEventIds.delete(id) : pinnedEventIds.add(id);
+        loadNearbyEvents(); // re-render to reflect pin state
+    }
+});
 
 if (!hasLeaflet) {
     eventStatus.textContent = "The map library could not load. Check your internet connection.";
