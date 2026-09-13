@@ -8,14 +8,17 @@
 </head>
 <body>
     <main>
+     <a href="index.html" style="color: var(--text-secondary); text-decoration: none; font-size: 15px; margin-bottom: 5px; transition: color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-secondary)'">← Back to Map</a>
+        
         <header class="user-header">
             <div class="profile-pic-container">
                 <img id="profile-picture" src="" alt="Profile Picture" class="profile-pic" hidden>
                 <span class="edit-badge">✏️</span>
             </div>
             <div class="user-info">
-                <h1 class="user-name">Your Name</h1>
-                <p id="auth-email" class="user-meta">Signed in with Auth0</p>
+                
+                <h1 id="auth-user-name" class="user-name">Loading...</h1>
+                <p id="auth-email" class="user-meta">Loading Auth0 profile...</p>
                 <p class="user-bio">Add bio in profile.</p>
                 <div class="user-tags">
                     <span class="event-tag">📍 4 event types</span>
@@ -77,6 +80,7 @@
             <h2><strong>ACCOUNT</strong></h2>
             <h3>Security and account management</h3>
 
+            
             <form action="/update-password" method="POST">
                 <strong>Change Password</strong>
                 <p>Last changed 3 months ago</p>
@@ -101,7 +105,8 @@
 
                 <div id="2fa-setup" style="display: none;">
                     <p>Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy):</p>
-                    <img src="/api/generate-qr-code" alt="2FA QR Code">
+                    <!-- Temporarily removed until backend is active -->
+                    <div style="color: #aaa; font-style: italic; margin: 10px 0;">[QR Code Placeholder]</div>
                     
                     <label for="verification-code">Enter 6-digit Code:</label>
                     <input type="text" id="verification-code" name="verification_code" maxlength="6" pattern="[0-9]{6}">
@@ -257,7 +262,6 @@
                 <h2>NEARBY RADIUS</h2>
                 <h3>Distance used for 'Nearby' event alerts</h3>
 
-                <!-- Removed the form wrapper entirely -->
                 <div class="radius-options">
                     <input type="radio" id="OneMile" name="radius" value="1">
                     <label for="OneMile">1 mile</label>
@@ -390,10 +394,48 @@
                 </a>
             </div>
 
-            <button type="button" class="sign-out-btn">Sign out</button>
+            <button id="logout-btn" type="button" class="sign-out-btn">Sign out</button>
         </div>
     </main>
 
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.18/auth0-spa-js.production.js"></script>
+
+    <!-- 2. Initialize Auth0 and pass data to profile.js (THIS WAS MISSING!) -->
+    <script>
+        (async () => {
+            try {
+                const client = await auth0.createAuth0Client({
+                    domain: 'dev-na3t3nvz7h4erpep.us.auth0.com',
+                    clientId: 'jF1hl8MaOoakXzqwkDbhmQje6NBLL7I6',
+                    cacheLocation: 'localstorage',
+                    authorizationParams: { 
+                        redirect_uri: window.location.origin + window.location.pathname 
+                    },
+                });
+
+                if (await client.isAuthenticated()) {
+                    const user = await client.getUser();
+                    
+                    // Pass the secure Auth0 data over to your profile.js file!
+                    if (typeof window.renderAuthProfile === 'function') {
+                        window.renderAuthProfile(user);
+                    }
+
+                    // Wire up the Sign out button
+                    document.getElementById('logout-btn').addEventListener('click', () => {
+                        client.logout({ logoutParams: { returnTo: window.location.origin } });
+                    });
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } catch (e) {
+                console.error("Auth0 profile error:", e);
+            }
+        })();
+    </script>
+
+    <!-- 3. Load your UI script -->
     <script src="profile.js"></script>
+
 </body>
 </html>
