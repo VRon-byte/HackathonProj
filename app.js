@@ -6,7 +6,7 @@
  *   - MapTiler: background map tiles.
  */
 
-const DEFAULT_CENTER = [40.7128, -74.0060]; // Replace with the desired initial location.
+const DEFAULT_CENTER = [33.5779, -101.8552]; // Lubbock, Texas
 const DEFAULT_ZOOM = 13;
 const mapKeyQuery = new URLSearchParams(window.location.search).get("mapTilerKey");
 const MAPTILER_KEY = mapKeyQuery || localStorage.getItem("touchgrass-maptiler-key") || "EG3XKhQ4MRSaUPkAiygq";
