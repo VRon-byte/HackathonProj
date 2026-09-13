@@ -153,24 +153,24 @@ if (bioInput) bioInput.addEventListener('input', updateProfileCard);
 window.renderAuthProfile = function(auth0User) {
     if (!auth0User) return;
     
-    // Check if you saved a custom name, otherwise use Auth0's
-    const displayName = profilePreferences.displayName || auth0User.name || auth0User.nickname;
-    if (headerName) headerName.textContent = displayName;
-    if (nameInput) nameInput.value = displayName;
-    
+    // 1. Load saved text into the input boxes FIRST
+    if (nameInput) nameInput.value = profilePreferences.displayName || auth0User.name || auth0User.nickname || '';
+    if (usernameInput) usernameInput.value = profilePreferences.username || auth0User.nickname || '';
+    if (locationInput) locationInput.value = profilePreferences.location || '';
     if (bioInput) bioInput.value = profilePreferences.bio || '';
-    if (headerBio) headerBio.textContent = profilePreferences.bio || 'Add bio in profile.';
-    
     if (document.getElementById('Email')) document.getElementById('Email').value = auth0User.email || '';
+    
+    // 2. Load Auth0 Email text
     if (authEmail) authEmail.textContent = auth0User.email || 'Signed in with Auth0';
 
-    // Check if you uploaded a custom picture, otherwise use Auth0's
+    // 3. Load Picture
     const picture = profilePreferences.picture || auth0User.picture;
     if (picture && profilePicture) {
         profilePicture.src = picture;
         profilePicture.hidden = false;
     }
     
+    // 4. Push those loaded text box values up to the Header!
     updateProfileCard();
 };
 
@@ -178,17 +178,18 @@ window.renderAuthProfile = function(auth0User) {
 if (profileForm) {
     profileForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        const displayName = nameInput.value.trim();
-        if (!displayName) return;
+        
+        // Save ALL fields to local storage memory
+        profilePreferences.displayName = nameInput.value.trim();
+        profilePreferences.username = usernameInput.value.trim();
+        profilePreferences.location = locationInput.value.trim();
+        profilePreferences.bio = bioInput.value.trim();
 
         const saveProfile = () => {
             localStorage.setItem(profileStorageKey, JSON.stringify(profilePreferences));
             alert('Profile saved on this device.');
             updateProfileCard(); 
         };
-
-        profilePreferences.displayName = displayName;
-        profilePreferences.bio = bioInput.value.trim();
         
         const pictureFile = pictureInput.files[0];
         if (!pictureFile) return saveProfile();
