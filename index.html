@@ -54,28 +54,6 @@
             <p>Choose a spot on the map, then enter the event details.</p>
         </section>
 
-        <section class="live-search" aria-labelledby="live-search-heading">
-            <h2 id="live-search-heading">Find Ticketmaster events</h2>
-            <form id="live-event-search">
-                <label for="event-zip">ZIP code</label>
-                <div class="live-search-controls">
-                    <input id="event-zip" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" value="79401" placeholder="e.g. 79401" required>
-                    <select id="event-distance" aria-label="Search distance">
-                        <option value="1">1 mile</option>
-                        <option value="5">5 miles</option>
-                        <option value="10">10 miles</option>
-                        <option value="25" selected>25 miles</option>
-                        <option value="50">50 miles</option>
-                        <option value="100">100 miles</option>
-                        <option value="250">250 miles</option>
-                        <option value="500">500 miles</option>
-                        <option value="nationwide">Nationwide</option>
-                    </select>
-                </div>
-                <button type="submit">Search live events</button>
-            </form>
-        </section>
-
         <section class="events">
             <h2>Nearby Events</h2>
             <p id="event-status" role="status">Loading events...</p>
@@ -115,7 +93,6 @@
 
     <!-- Map Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js?v=20260913"></script>
-    <script src="ticketmaster-client.js?v=20260913-lubbock"></script>
     <script src="app.js?v=20260913-pages-search-fix"></script>
 
     <!-- ========================================== -->

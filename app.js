@@ -168,10 +168,6 @@ if (hasLeaflet) {
 }
 
 const eventList = document.querySelector("#event-list");
-const liveEventSearch = document.querySelector("#live-event-search");
-const eventZipInput = document.querySelector("#event-zip");
-const eventDistanceInput = document.querySelector("#event-distance");
-
 document.querySelectorAll(".zoom-controls button").forEach((button, index) => {
     button.addEventListener("click", () => {
         if (!map) return;
@@ -297,98 +293,6 @@ function renderEvents(events) {
 function loadNearbyEvents() {
     eventStatus.textContent = "Showing local events near the map.";
     renderEvents(localEvents);
-}
-
-liveEventSearch.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const zip = eventZipInput.value.trim();
-    const radius = eventDistanceInput.value;
-    eventStatus.textContent = "Loading live events…";
-    eventList.replaceChildren();
-
-    try {
-        if (!/^\d{5}$/.test(zip)) throw new Error("Enter a valid 5-digit ZIP code.");
-        const liveEvents = await fetchLiveEvents(zip, radius);
-        renderEvents(liveEvents);
-        const scope = radius === "nationwide" ? "nationwide" : `within ${radius} miles of ${zip}`;
-        
-        if (currentView !== "pinned") {
-            eventStatus.textContent = liveEvents.length ? `${liveEvents.length} live events found ${scope}` : "No live events found in this area.";
-        }
-    } catch (error) {
-        eventStatus.textContent = error.message;
-    }
-});
-
-async function fetchLiveEvents(zip, radius) {
-    const params = new URLSearchParams({ zip, radius });
-    const isGitHubPages = window.location.hostname.endsWith("github.io");
-
-    if (!isGitHubPages) {
-        const response = await fetch(`/api/events?${params}`, { cache: "no-store" });
-        const data = await readJsonResponse(response);
-        if (!response.ok) throw new Error(data.error || "Ticketmaster could not load events right now.");
-        return data.events.map(normalizeLiveEvent);
-    }
-
-    if (!window.TICKETMASTER_API_KEY) throw new Error("Ticketmaster search is not configured for GitHub Pages.");
-    const ticketmasterParams = new URLSearchParams({
-        apikey: window.TICKETMASTER_API_KEY,
-        countryCode: "US",
-        size: "30",
-        sort: radius === "nationwide" ? "date,asc" : "distance,asc",
-    });
-    if (radius !== "nationwide") {
-        ticketmasterParams.set("postalCode", zip);
-        ticketmasterParams.set("radius", radius);
-        ticketmasterParams.set("unit", "miles");
-    }
-    const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${ticketmasterParams}`, { cache: "no-store" });
-    const data = await readJsonResponse(response);
-    if (!response.ok) throw new Error(data.fault?.faultstring || "Ticketmaster could not load events right now.");
-    return (data._embedded?.events || []).map((eventItem) => {
-        const venue = eventItem._embedded?.venues?.[0];
-        return normalizeLiveEvent({
-            id: eventItem.id,
-            name: eventItem.name,
-            date: eventItem.dates?.start?.localDate || "Date TBA",
-            time: eventItem.dates?.start?.localTime || "",
-            venue: venue?.name || "Venue TBA",
-            city: venue?.city?.name || "",
-            state: venue?.state?.stateCode || "",
-            category: eventItem.classifications?.[0]?.segment?.name || "Live event",
-            latitude: Number(venue?.location?.latitude),
-            longitude: Number(venue?.location?.longitude),
-            url: eventItem.url,
-        });
-    });
-}
-
-async function readJsonResponse(response) {
-    const contentType = response.headers.get("content-type") || "";
-    const body = await response.text();
-    if (!contentType.includes("application/json")) {
-        throw new Error("The event service is unavailable. Open the GitHub Pages site or start the app server, then try again.");
-    }
-    try {
-        return JSON.parse(body);
-    } catch (error) {
-        throw new Error("The event service returned an invalid response. Please try again.");
-    }
-}
-
-function normalizeLiveEvent(eventItem) {
-    return {
-        id: eventItem.id,
-        title: eventItem.name,
-        starts_at: `${eventItem.date}${eventItem.time ? `T${eventItem.time}` : ""}`,
-        venue_name: [eventItem.venue, eventItem.city, eventItem.state].filter(Boolean).join(", "),
-        category: eventItem.category || "Live event",
-        latitude: eventItem.latitude,
-        longitude: eventItem.longitude,
-        url: eventItem.url,
-        emoji: "🎟️",
-    };
 }
 
 loadCustomEvents();
