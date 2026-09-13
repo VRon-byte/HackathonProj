@@ -34,9 +34,9 @@ if (hasLeaflet) {
 }
 
 const eventList = document.querySelector("#event-list");
-const radiusInput = document.querySelector("#radius");
-const radiusValue = document.querySelector("#radius-value");
-let selectedCategory = "";
+const liveEventSearch = document.querySelector("#live-event-search");
+const eventZipInput = document.querySelector("#event-zip");
+const eventDistanceInput = document.querySelector("#event-distance");
 
 document.querySelectorAll(".zoom-controls button").forEach((button, index) => {
     button.addEventListener("click", () => {
@@ -70,8 +70,10 @@ function renderEvent(event) {
         <p>${escapeHtml(event.category || "Uncategorized")}</p>
         </div>
     `;
-    if (map) {
+    if (map && Number.isFinite(event.latitude) && Number.isFinite(event.longitude)) {
         card.addEventListener("click", () => map.setView([event.latitude, event.longitude], 16));
+    } else if (event.url) {
+        card.addEventListener("click", () => window.open(event.url, "_blank", "noopener,noreferrer"));
     }
     return card;
 }
@@ -98,7 +100,7 @@ function renderEvents(events) {
     const cards = document.createDocumentFragment();
 
     events.forEach((event) => {
-        if (markerLayer) {
+        if (markerLayer && Number.isFinite(event.latitude) && Number.isFinite(event.longitude)) {
             const marker = L.marker([event.latitude, event.longitude]);
             marker.bindPopup(`
                 <strong>${escapeHtml(event.title)}</strong>
@@ -115,27 +117,57 @@ function renderEvents(events) {
 
 function loadNearbyEvents() {
     eventStatus.textContent = "Showing local events near the map.";
-    const filteredEvents = selectedCategory
-        ? localEvents.filter((event) => event.category === selectedCategory)
-        : localEvents;
-    renderEvents(filteredEvents);
+    renderEvents(localEvents);
 }
 
-document.querySelectorAll("[data-category]").forEach((button) => {
-    button.addEventListener("click", () => {
-        selectedCategory = button.dataset.category;
-        document.querySelectorAll("[data-category]").forEach((item) => item.classList.remove("filter-active"));
-        button.classList.add("filter-active");
-        loadNearbyEvents();
-    });
-});
+liveEventSearch.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const zip = eventZipInput.value.trim();
+    const radius = eventDistanceInput.value;
+    eventStatus.textContent = "Loading live events…";
+    eventList.replaceChildren();
 
-radiusInput.addEventListener("input", () => {
-    radiusValue.textContent = radiusInput.value;
+    try {
+        if (!window.TICKETMASTER_API_KEY) throw new Error("Ticketmaster search is not configured.");
+        const params = new URLSearchParams({
+            apikey: window.TICKETMASTER_API_KEY,
+            countryCode: "US",
+            size: "30",
+            sort: radius === "nationwide" ? "date,asc" : "distance,asc",
+        });
+        if (radius !== "nationwide") {
+            params.set("postalCode", zip);
+            params.set("radius", radius);
+            params.set("unit", "miles");
+        }
+        const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${params}`, {
+            mode: "cors",
+            credentials: "omit",
+            cache: "no-store",
+            referrerPolicy: "no-referrer",
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error("Ticketmaster could not load events right now.");
+        const liveEvents = (data._embedded?.events || []).map((eventItem) => {
+            const venue = eventItem._embedded?.venues?.[0];
+            return {
+            id: eventItem.id,
+            title: eventItem.name,
+            starts_at: `${eventItem.dates?.start?.localDate || ""}${eventItem.dates?.start?.localTime ? `T${eventItem.dates.start.localTime}` : ""}`,
+            venue_name: [venue?.name, venue?.city?.name, venue?.state?.stateCode].filter(Boolean).join(", "),
+            category: eventItem.classifications?.[0]?.segment?.name || "Live event",
+            latitude: Number(venue?.location?.latitude),
+            longitude: Number(venue?.location?.longitude),
+            url: eventItem.url,
+            emoji: "🎟️",
+        };
+        });
+        renderEvents(liveEvents);
+        const scope = radius === "nationwide" ? "nationwide" : `within ${radius} miles of ${zip}`;
+        eventStatus.textContent = liveEvents.length ? `${liveEvents.length} live events found ${scope}` : "No live events found in this area.";
+    } catch (error) {
+        eventStatus.textContent = error.message;
+    }
 });
-radiusInput.addEventListener("change", loadNearbyEvents);
-
-// Reload event pins after the user pans or zooms the map.
-if (map) map.on("moveend", loadNearbyEvents);
 
 loadNearbyEvents();
