@@ -47,6 +47,13 @@
             <button class="event-view" type="button" data-view="pinned" aria-pressed="false">📌 Pinned Events</button>
         </nav>
 
+        <section class="create-event" aria-labelledby="create-event-heading">
+            <h2 id="create-event-heading">Create an event</h2>
+            <button id="drop-pin-button" type="button">Add an event</button>
+            <button id="clear-pins-button" type="button">Clear pins</button>
+            <p>Choose a spot on the map, then enter the event details.</p>
+        </section>
+
         <section class="live-search" aria-labelledby="live-search-heading">
             <h2 id="live-search-heading">Find Ticketmaster events</h2>
             <form id="live-event-search">
@@ -92,7 +99,7 @@
 
                 <div class="modal-actions">
                     <button type="button" id="cancel-pin">Cancel</button>
-                    <button type="submit">Save Pin</button>
+                    <button type="submit">Save Event</button>
                 </div>
             </form>
         </div>
@@ -100,8 +107,6 @@
 
     <main class="map-area">
         <div id="map" aria-label="Map of nearby events"></div>
-        <button id="drop-pin-button" type="button">Drop a pin</button>
-        <button id="clear-pins-button" type="button">Clear pins</button>
         <div class="zoom-controls" aria-label="Map controls">
             <button type="button" aria-label="Zoom in">+</button>
             <button type="button" aria-label="Zoom out">−</button>

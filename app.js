@@ -36,7 +36,7 @@ let pendingPinLocation = null;
 dropPinButton.addEventListener("click", () => {
     isDroppingPin = !isDroppingPin;
     dropPinButton.classList.toggle("filter-active", isDroppingPin);
-    dropPinButton.textContent = isDroppingPin ? "Click the map..." : "Drop a pin";
+    dropPinButton.textContent = isDroppingPin ? "Choose a map location" : "Add an event";
 });
 
 clearPinsButton.addEventListener("click", () => {
@@ -55,7 +55,7 @@ if (map) map.on("click", (event) => {
     // Reset the map dropping state
     isDroppingPin = false;
     dropPinButton.classList.remove("filter-active");
-    dropPinButton.textContent = "Drop a pin";
+    dropPinButton.textContent = "Add an event";
 });
 
 // Cancel the custom pin modal

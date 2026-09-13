@@ -124,6 +124,52 @@ button { cursor: pointer; }
 
 .event-view:hover, .event-view.active { border-color: var(--accent); background: var(--accent); color: #fff; }
 
+.create-event {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.create-event h2 {
+    margin-bottom: 9px;
+    color: var(--muted);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.create-event button {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid var(--accent);
+    border-radius: 7px;
+    background: var(--accent);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+.create-event button + button {
+    margin-top: 7px;
+    border-color: var(--line);
+    background: var(--raised);
+    color: var(--muted);
+}
+
+.create-event button:hover,
+.create-event button.filter-active {
+    border-color: #baf2a7;
+    background: #baf2a7;
+    color: #0b1a0b;
+}
+
+.create-event p {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: .7rem;
+    line-height: 1.4;
+}
+
 .filter-sections { padding: 14px 16px; border-bottom: 1px solid var(--line); }
 .filter-sections h2, .events h2 {
     margin-bottom: 9px;
