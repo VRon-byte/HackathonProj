@@ -1,91 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=touchgrass/dashboard.html?v=20260913">
-  <title>TouchGrass</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouchGrass</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="style.css?v=20260913">
 </head>
 <body>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header-row">
+            <div class="brand">
+                <h1>TouchGrass</h1>
+                <p>Explore what's happening near you</p>
+            </div>
+        </div>
 
-  <aside class="sidebar" id="sidebar">
+        <!-- ========================================== -->
+        <!-- MERGED: SECURE AUTH0 BUTTONS & PROFILE INFO -->
+        <!-- ========================================== -->
+        <div class="auth-buttons">
+            <!-- Loading state indicator -->
+            <div id="view-loading" style="color: var(--text-muted, #666); font-size: 0.9rem;">Loading auth...</div>
 
-    <div class="sidebar-header-row">
-      <div class="brand">
-        <h1>TouchGrass</h1>
-        <p>Explore what's happening near you</p>
-      </div>
-    </div>
+            <!-- Error container if login fails -->
+            <div id="view-error" style="color: #ff4d4d; font-size: 0.9rem;" hidden></div>
 
-    <div class="auth-buttons">
-      <button class="login-button">Login</button>
-      <button class="signup-button">Sign Up</button>
-    </div>
+            <!-- Displayed strictly when user IS logged in -->
+            <div id="view-authenticated" hidden>
+                <p style="margin: 0 0 8px 0; font-size: 0.85rem;">Logged in as: <strong id="user-email"></strong></p>
+                <!-- Hidden user-profile block for internal debugging if needed -->
+                <pre id="user-profile" style="display: none;"></pre>
+                <a class="login-button" href="/logout">Logout</a>
+            </div>
 
-    <nav class="event-views" aria-label="Event views">
-      <button class="event-view active" id="allEventsView" type="button" data-view="all" aria-pressed="true">🗺️ All Events</button>
-      <button class="event-view" type="button" data-view="pinned" aria-pressed="false">📌 Pinned Events</button>
-    </nav>
+            <!-- Displayed strictly when user IS NOT logged in -->
+            <div id="view-unauthenticated" hidden>
+                <a class="login-button" href="/login">Login</a>
+                <a class="signup-button" href="/signup">Sign Up</a>
+            </div>
+        </div>
 
-    <section class="filter-sections">
-      <h2>Filters</h2>
-      <div class="filter-buttons">
-        <button class="filter-active" type="button" data-category="All">All</button>
-        <button class="filter-button" type="button" data-category="Music">Music</button>
-        <button class="filter-button" type="button" data-category="Markets">Markets</button>
-        <button class="filter-button" type="button" data-category="Museums">Museums</button>
-        <button class="filter-button" type="button" data-category="Sports">Sports</button>
-        <button class="filter-button" type="button" data-category="Tech">Tech</button>
-        <button class="filter-button" type="button" data-category="Arts">Arts</button>
-        <button class="filter-button" type="button" data-category="Gardens">Gardens</button>
-        <button class="filter-button" type="button" data-category="Food">Food</button>
-        <button class="filter-button" type="button" data-category="Entertainment">Entertainment</button>
-      </div>
-    </section>
+        <nav class="event-views" aria-label="Event views">
+            <button class="event-view active" type="button" data-view="all" aria-pressed="true">🗺️ All Events</button>
+            <button class="event-view" type="button" data-view="pinned" aria-pressed="false">📌 Pinned Events</button>
+        </nav>
 
-    <section class="events">
-      <h2>Nearby Events</h2>
-      <p class="no-pinned-events" id="noPinnedEvents" hidden>No pinned events yet.</p>
-      <p class="no-events-found" id="noEventsFound" hidden>No events found.</p>
-      <div id="eventList"></div>
-    </section>
+        <section class="filter-sections">
+            <h2>Filters</h2>
+            <label for="radius">Search radius: <span id="radius-value">10</span> km</label>
+            <input id="radius" type="range" min="1" max="100" value="10">
+            <div class="filter-buttons">
+                <button class="filter-active" type="button" data-category="">All</button>
+                <button class="filter-button" type="button" data-category="Music">Music</button>
+                <button class="filter-button" type="button" data-category="Markets">Markets</button>
+                <button class="filter-button" type="button" data-category="Museums">Museums</button>
+                <button class="filter-button" type="button" data-category="Sports">Sports</button>
+                <button class="filter-button" type="button" data-category="Tech">Tech</button>
+                <button class="filter-button" type="button" data-category="Arts">Arts</button>
+                <button class="filter-button" type="button" data-category="Gardens">Gardens</button>
+                <button class="filter-button" type="button" data-category="Food">Food</button>
+                <button class="filter-button" type="button" data-category="Entertainment">Entertainment</button>
+            </div>
+        </section>
 
-  </aside>
+        <section class="events">
+            <h2>Nearby Events</h2>
+            <p id="event-status" role="status">Loading events...</p>
+            <div id="event-list"></div>
+        </section>
+    </aside>
 
-  <main class="map-area">
-    <div class="map-placeholder">
-      <div class="zoom-controls">
-        <button>+</button>
-        <button>−</button>
-      </div>
-      <div class="marker music">🎵</div>
-      <div class="marker market">🛍️</div>
-      <div class="marker tech">💻</div>
-      <div class="marker sports">⚽</div>
-      <div class="marker art">🎨</div>
-      <div class="marker garden">🌳</div>
-      <div class="marker food">🍔</div>
-      <div class="marker entertainment">🎭</div>
-      <div class="marker museum">🏛️</div>
-    </div>
-  </main>
+    <main class="map-area">
+        <div id="map" aria-label="Map of nearby events"></div>
+        <div class="zoom-controls" aria-label="Map controls">
+            <button type="button" aria-label="Zoom in">+</button>
+            <button type="button" aria-label="Zoom out">−</button>
+        </div>
+    </main>
 
-  <dialog class="auth-dialog" id="authDialog">
-    <form class="auth-form" id="authForm">
-      <button class="auth-dialog-close" id="authDialogClose" type="button">✕</button>
-      <h2 id="authTitle">Log in to TouchGrass</h2>
-      <p class="auth-dialog-copy" id="authCopy">Find and save events around you.</p>
-      <label id="nameField" hidden>Display name<input id="authName" type="text" autocomplete="name"></label>
-      <label>Email<input id="authEmail" type="email" autocomplete="email" required></label>
-      <label>Password<input id="authPassword" type="password" autocomplete="current-password" minlength="6" required></label>
-      <button class="auth-submit" type="submit" id="authSubmit">Log In</button>
-      <p class="auth-message" id="authMessage" role="status"></p>
-      <button class="auth-switch" type="button" id="authSwitch">Need an account? Sign up</button>
-    </form>
-  </dialog>
+    <!-- Map Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js?v=20260913"></script>
+    <script src="app.js?v=20260914"></script>
 
-  <script src="script.js"></script>
+    <!-- ========================================== -->
+    <!-- MERGED: AUTH0 ENGINE AND RUNTIME CONFIG    -->
+    <!-- ========================================== -->
+    <!-- Official Auth0 Single Page Application SDK -->
+    <!-- Authentication is handled by the Express server; no browser Auth0 SDK is loaded. -->
 
+    <script>if (false) {
+      // Layout controller helpers
+      const displayView = name => ['loading', 'error', 'authenticated', 'unauthenticated'].forEach(v => {
+          const element = document.getElementById(`view-${v}`);
+          if (element) element.hidden = v !== name;
+      });
+      const setTextContent = (id, content) => {
+          const element = document.getElementById(id);
+          if (element) element.textContent = content;
+      };
+
+      (async () => {
+        try {
+          // Initialize connection with your secure credentials
+          window.client = await auth0.createAuth0Client({
+            domain: 'dev-na3t3nvz7h4erpep.us.auth0.com',
+            clientId: 'JHucZs8n8cJrY1HxlAtjFK3edq76UPRb',
+            authorizationParams: { redirect_uri: location.origin },
+          });
+
+          // Check if Auth0 is responding back with an active identity error
+          if (location.search.includes("error=")) {
+            const params = new URLSearchParams(location.search);
+            setTextContent("view-error", `Error: ${params.get("error")} — ${params.get("error_description")}`);
+            displayView("error");
+            history.replaceState({}, "", location.pathname);
+            return;
+          }
+
+          // Clean up technical URL variables after verification redirect handshake
+          if (location.search.includes("code=") && location.search.includes("state=")) {
+            await window.client.handleRedirectCallback();
+            history.replaceState({}, "", location.pathname);
+          }
+
+          // If the profile token is validated, parse metadata and show the logged-in view
+          if (await window.client.isAuthenticated()) {
+            const user = await window.client.getUser();
+            setTextContent("user-email", user.email);
+            setTextContent("user-profile", JSON.stringify(user, null, 2));
+            displayView("authenticated");
+            return;
+          }
+
+          // Default state if user is unauthenticated
+          displayView("unauthenticated");
+        } catch (e) {
+            console.error("Auth0 failed to initialize:", e);
+            setTextContent("view-error", "Authentication error.");
+            displayView("error");
+        }
+      })();
+    }
+    </script>
+    <script src="auth-ui.js"></script>
 </body>
 </html>
+
+
+
+
