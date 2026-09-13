@@ -1,3 +1,4 @@
 .env
 auth0.env
+ticketmaster-client.js
 node_modules/

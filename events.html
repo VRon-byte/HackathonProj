@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Find events | TouchGrass</title>
+  <link rel="stylesheet" href="events.css">
+</head>
+<body>
+  <main>
+    <a href="/">← Back to map</a>
+    <h1>Find US events</h1>
+    <p>Enter a ZIP code, then choose a search distance from one mile to nationwide.</p>
+    <form id="search">
+      <label>ZIP code
+        <input id="zip" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="e.g. 60601" required>
+      </label>
+      <label>Distance
+        <select id="radius">
+          <option value="1">Within 1 mile</option>
+          <option value="5">Within 5 miles</option>
+          <option value="10">Within 10 miles</option>
+          <option value="25" selected>Within 25 miles</option>
+          <option value="50">Within 50 miles</option>
+          <option value="100">Within 100 miles</option>
+          <option value="250">Within 250 miles</option>
+          <option value="500">Within 500 miles</option>
+          <option value="nationwide">Nationwide</option>
+        </select>
+      </label>
+      <button>Find live events</button>
+    </form>
+    <p class="eventbrite-note">Looking for more? <a href="https://www.eventbrite.com/d/united-states/events/" target="_blank" rel="noreferrer">Browse the Eventbrite US events directory ↗</a>.</p>
+    <p id="status" role="status"></p>
+    <section id="results"></section>
+  </main>
+  <script src="events.js"></script>
+</body>
+</html>
