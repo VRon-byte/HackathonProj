@@ -31,7 +31,7 @@ app.get('/', (req, res) => res.sendFile('dashboard.html', { root: __dirname }));
 app.get('/login.html', (req, res) => res.redirect('/'));
 app.get('/profile', (req, res) => {
   if (!req.oidc.isAuthenticated()) return res.redirect('/login?returnTo=/profile');
-  return res.json(req.oidc.user);
+  return res.sendFile('profile.html', { root: __dirname });
 });
 
 app.use(express.static(__dirname));
