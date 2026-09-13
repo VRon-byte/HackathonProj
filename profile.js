@@ -87,22 +87,27 @@ forms.forEach(form => {
 const nameInput = document.getElementById('Name');
 const usernameInput = document.getElementById('UserName');
 const locationInput = document.getElementById('Location');
+const bioInput = document.getElementById('Bio');
 
 const headerName = document.querySelector('.user-name');
 const headerMeta = document.querySelector('.user-meta');
+const headerBio = document.querySelector('.user-bio');
 
 function updateProfileCard() {
     const nameText = nameInput.value || 'Your Name';
     const usernameText = usernameInput.value ? `@${usernameInput.value}` : '@username';
     const locationText = locationInput.value || 'City, State';
+    const bioText = bioInput.value.trim() || 'Add bio in profile.';
     
     if (headerName) headerName.textContent = nameText;
     if (headerMeta) headerMeta.innerHTML = `${usernameText} &middot; ${locationText}`;
+    if (headerBio) headerBio.textContent = bioText;
 }
 
 if (nameInput) nameInput.addEventListener('input', updateProfileCard);
 if (usernameInput) usernameInput.addEventListener('input', updateProfileCard);
 if (locationInput) locationInput.addEventListener('input', updateProfileCard);
+if (bioInput) bioInput.addEventListener('input', updateProfileCard);
 
 
 const eventCheckboxes = document.querySelectorAll('.tab-content.Event input[type="checkbox"]');
@@ -192,6 +197,8 @@ function renderAuthProfile() {
     const displayName = profilePreferences.displayName || 'Set your display name';
     if (headerName) headerName.textContent = displayName;
     if (nameInput) nameInput.value = profilePreferences.displayName || '';
+    if (bioInput) bioInput.value = profilePreferences.bio || '';
+    if (headerBio) headerBio.textContent = profilePreferences.bio || 'Add bio in profile.';
     if (document.getElementById('Email')) document.getElementById('Email').value = auth0User.email || '';
     if (authEmail) authEmail.textContent = auth0User.email || 'Signed in with Auth0';
 
@@ -215,6 +222,7 @@ if (profileForm) {
         };
 
         profilePreferences.displayName = displayName;
+        profilePreferences.bio = bioInput.value.trim();
         const pictureFile = pictureInput.files[0];
         if (!pictureFile) return saveProfile();
         if (pictureFile.size > 2 * 1024 * 1024) {
