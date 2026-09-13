@@ -71,13 +71,14 @@ if (dangerBtns.length >= 2) {
 const signOutBtn = document.querySelector('.sign-out-btn');
 if (signOutBtn) {
     signOutBtn.addEventListener('click', () => {
-        alert('You have successfully signed out.');
+        window.location.assign('/logout');
     });
 }
 
 const forms = document.querySelectorAll('form');
 forms.forEach(form => {
     form.addEventListener('submit', (e) => {
+        if (form.id === 'profile-form') return;
         e.preventDefault();
         alert('Form changes saved successfully!');
     });
@@ -106,6 +107,27 @@ if (locationInput) locationInput.addEventListener('input', updateProfileCard);
 
 const eventCheckboxes = document.querySelectorAll('.tab-content.Event input[type="checkbox"]');
 const eventBadge = document.querySelector('.event-tag');
+
+// Keep profile preferences aligned with the categories used by dashboard.html.
+const dashboardEventTypes = [
+    ['Music', 'Concerts, open mics, and live performances'],
+    ['Markets', 'Community markets and local vendors'],
+    ['Museums', 'Exhibits, tours, and cultural collections'],
+    ['Sports', 'Pickup games, runs, and workouts'],
+    ['Tech', 'Meetups, job fairs, and tech talks'],
+    ['Arts', 'Galleries, theater, and creative events'],
+    ['Gardens', 'Community gardens and outdoor growing spaces'],
+    ['Food', 'Pop-ups, tastings, and food festivals'],
+    ['Entertainment', 'Shows, social events, and nightlife']
+];
+
+eventCheckboxes.forEach((checkbox, index) => {
+    const [category, description] = dashboardEventTypes[index];
+    checkbox.name = category.toLowerCase();
+    const label = checkbox.closest('label');
+    label.querySelector('strong').textContent = category;
+    label.querySelector('small').textContent = description;
+});
 
 function updateEventCount() {
     let checkedCount = 0;
@@ -154,3 +176,87 @@ if (confirm2faBtn) {
         }
     });
 }
+
+// TouchGrass profile preferences are local to this browser. Auth0 identity data
+// is read from the server-side session and is never edited in the browser.
+const profileForm = document.getElementById('profile-form');
+const pictureInput = document.getElementById('ProfilePicture');
+const profilePicture = document.getElementById('profile-picture');
+const authEmail = document.getElementById('auth-email');
+const profileStorageKey = 'touchgrass-profile';
+const profilePreferences = JSON.parse(localStorage.getItem(profileStorageKey) || '{}');
+let auth0User = null;
+
+function renderAuthProfile() {
+    if (!auth0User) return;
+    const displayName = profilePreferences.displayName || 'Set your display name';
+    if (headerName) headerName.textContent = displayName;
+    if (nameInput) nameInput.value = profilePreferences.displayName || '';
+    if (document.getElementById('Email')) document.getElementById('Email').value = auth0User.email || '';
+    if (authEmail) authEmail.textContent = auth0User.email || 'Signed in with Auth0';
+
+    const picture = profilePreferences.picture || auth0User.picture;
+    if (picture && profilePicture) {
+        profilePicture.src = picture;
+        profilePicture.hidden = false;
+    }
+}
+
+if (profileForm) {
+    profileForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const displayName = nameInput.value.trim();
+        if (!displayName) return;
+
+        const saveProfile = () => {
+            localStorage.setItem(profileStorageKey, JSON.stringify(profilePreferences));
+            renderAuthProfile();
+            alert('Profile saved on this device.');
+        };
+
+        profilePreferences.displayName = displayName;
+        const pictureFile = pictureInput.files[0];
+        if (!pictureFile) return saveProfile();
+        if (pictureFile.size > 2 * 1024 * 1024) {
+            alert('Choose an image smaller than 2 MB.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            profilePreferences.picture = reader.result;
+            saveProfile();
+        });
+        reader.readAsDataURL(pictureFile);
+    });
+}
+
+fetch('/api/me')
+    .then((response) => {
+        if (!response.ok) throw new Error('Not authenticated');
+        return response.json();
+    })
+    .then(({ user }) => {
+        auth0User = user;
+        renderAuthProfile();
+    })
+    .catch(() => window.location.assign('/login?returnTo=/profile'));
+
+document.querySelectorAll('input[name="radius"]').forEach(radio => {
+    radio.addEventListener('change', async (event) => {
+        
+        const updateData = {
+            userId: 1, // Hardcoded user for testing
+            radius: event.target.value,
+            theme: document.querySelector('.settings-select').value
+        };
+
+        const response = await fetch('http://localhost:3000/api/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updateData)
+        });
+
+        console.log('Saved to Tiger Data!', await response.json());
+    });
+});

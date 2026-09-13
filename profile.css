@@ -1,14 +1,14 @@
 :root {
-    --bg-main: #121212;
-    --bg-card: #1e1e1e;
-    --border-color: #333333;
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --accent-gold: #cca762;
-    --accent-gold-bg: #332a1b;
-    --btn-bg: #2a2a2a;
-    --btn-hover: #3a3a3a;
-    --danger-red: #ff5a5a;
+    --bg-main: #061b10;
+    --bg-card: #0d2b1a;
+    --border-color: #245c38;
+    --text-primary: #effff4;
+    --text-secondary: #a8d9b8;
+    --accent-gold: #77d86b;
+    --accent-gold-bg: #173d25;
+    --btn-bg: #164629;
+    --btn-hover: #216a3c;
+    --danger-red: #79cf8b;
 }
 
 body {
@@ -59,7 +59,12 @@ main {
     height: 90px;
     border-radius: 50%;
     object-fit: cover;
-    background-color: #444; 
+    background-color: #205b35; 
+}
+
+.profile-save-btn {
+    justify-self: start;
+    margin-top: 14px;
 }
 
 .edit-badge {
@@ -130,7 +135,7 @@ main {
 
 .ToggleOptions input[type="radio"]:checked + label {
     background-color: var(--accent-gold);
-    color: #121212;
+    color: #062010;
 }
 
 .tab-content { display: none; }
@@ -192,7 +197,7 @@ body:has(#SettingsOption:checked) .tab-content.Settings { display: block; }
 }
 
 .personalinfo input::placeholder {
-    color: #555;
+    color: #6ea982;
 }
 
 .personalinfo label:last-of-type,
@@ -278,7 +283,7 @@ form[action="/update-password"] input {
 }
 
 .danger-btn {
-    border-color: #4a2a2a;
+    border-color: #36744a;
     color: var(--text-secondary);
 }
 
@@ -288,7 +293,7 @@ form[action="/update-password"] input {
 }
 
 .danger-btn:hover {
-    background-color: #3a1111;
+    background-color: #123d22;
 }
 
 .simple-event-card {
@@ -330,7 +335,7 @@ form[action="/update-password"] input {
     -webkit-appearance: none;
     width: 46px;
     height: 26px;
-    background-color: #444; 
+    background-color: #205b35; 
     border-radius: 30px;
     position: relative;
     cursor: pointer;
@@ -384,7 +389,7 @@ form[action="/update-password"] input {
 }
 
 .radius-options label:hover {
-    border-color: #555;
+    border-color: #4c9563;
 }
 
 .radius-options input[type="radio"]:checked + label {
@@ -435,7 +440,7 @@ form[action="/update-password"] input {
 }
 
 .settings-action-btn:hover {
-    background-color: #2a2a2a;
+    background-color: #164629;
 }
 
 .settings-text-value,
@@ -460,5 +465,5 @@ form[action="/update-password"] input {
 }
 
 .sign-out-btn:hover {
-    background-color: rgba(255, 90, 90, 0.1);
+    background-color: rgba(119, 216, 107, 0.12);
 }

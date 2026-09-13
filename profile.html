@@ -11,12 +11,12 @@
     <main>
         <header class="user-header">
             <div class="profile-pic-container">
-                <img src="avatar.jpg" alt="Profile Picture" class="profile-pic">
+                <img id="profile-picture" src="" alt="Profile Picture" class="profile-pic" hidden>
                 <span class="edit-badge">✏️</span>
             </div>
             <div class="user-info">
                 <h1 class="user-name">Your Name</h1>
-                <p class="user-meta">@username &middot; City, State</p>
+                <p id="auth-email" class="user-meta">Signed in with Auth0</p>
                 <p class="user-bio">Avid cyclist and city explorer. Always down for a pop-up or a good ride.</p>
                 <div class="user-tags">
                     <span class="event-tag">📍 4 event types</span>
@@ -48,9 +48,12 @@
                     <button type="button" class="edit-btn">Edit</button>
                 </div>
 
-                <form>   
+                <form id="profile-form">
                     <label for="Name">Name</label>
                     <input type="text" id="Name" name="name" placeholder="e.g. John Doe" required>
+
+                    <label for="ProfilePicture">Profile picture</label>
+                    <input type="file" id="ProfilePicture" name="picture" accept="image/png,image/jpeg,image/webp">
 
                     <label for="UserName">Username</label>                        
                     <input type="text" id="UserName" name="username" placeholder="e.g. johndoe99">
@@ -63,6 +66,9 @@
 
                     <label for="Location">Location</label>
                     <input type="text" id="Location" name="location" placeholder="e.g. Chicago, IL">
+
+                    <span></span>
+                    <button class="profile-save-btn" type="submit">Save profile</button>
                 </form>
             </div>
 
