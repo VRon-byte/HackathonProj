@@ -308,23 +308,7 @@ liveEventSearch.addEventListener("submit", async (event) => {
 
     try {
         if (!/^\d{5}$/.test(zip)) throw new Error("Enter a valid 5-digit ZIP code.");
-        const params = new URLSearchParams({ zip, radius });
-        const response = await fetch(`/api/events?${params}`, { cache: "no-store" });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Ticketmaster could not load events right now.");
-        const liveEvents = data.events.map((eventItem) => {
-            return {
-                id: eventItem.id,
-                title: eventItem.name,
-                starts_at: `${eventItem.date}${eventItem.time ? `T${eventItem.time}` : ""}`,
-                venue_name: [eventItem.venue, eventItem.city, eventItem.state].filter(Boolean).join(", "),
-                category: eventItem.category || "Live event",
-                latitude: eventItem.latitude,
-                longitude: eventItem.longitude,
-                url: eventItem.url,
-                emoji: "🎟️",
-        };
-        });
+        const liveEvents = await fetchLiveEvents(zip, radius);
         renderEvents(liveEvents);
         const scope = radius === "nationwide" ? "nationwide" : `within ${radius} miles of ${zip}`;
         
@@ -335,6 +319,64 @@ liveEventSearch.addEventListener("submit", async (event) => {
         eventStatus.textContent = error.message;
     }
 });
+
+async function fetchLiveEvents(zip, radius) {
+    const params = new URLSearchParams({ zip, radius });
+    const isGitHubPages = window.location.hostname.endsWith("github.io");
+
+    if (!isGitHubPages) {
+        const response = await fetch(`/api/events?${params}`, { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Ticketmaster could not load events right now.");
+        return data.events.map(normalizeLiveEvent);
+    }
+
+    if (!window.TICKETMASTER_API_KEY) throw new Error("Ticketmaster search is not configured for GitHub Pages.");
+    const ticketmasterParams = new URLSearchParams({
+        apikey: window.TICKETMASTER_API_KEY,
+        countryCode: "US",
+        size: "30",
+        sort: radius === "nationwide" ? "date,asc" : "distance,asc",
+    });
+    if (radius !== "nationwide") {
+        ticketmasterParams.set("postalCode", zip);
+        ticketmasterParams.set("radius", radius);
+        ticketmasterParams.set("unit", "miles");
+    }
+    const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${ticketmasterParams}`, { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.fault?.faultstring || "Ticketmaster could not load events right now.");
+    return (data._embedded?.events || []).map((eventItem) => {
+        const venue = eventItem._embedded?.venues?.[0];
+        return normalizeLiveEvent({
+            id: eventItem.id,
+            name: eventItem.name,
+            date: eventItem.dates?.start?.localDate || "Date TBA",
+            time: eventItem.dates?.start?.localTime || "",
+            venue: venue?.name || "Venue TBA",
+            city: venue?.city?.name || "",
+            state: venue?.state?.stateCode || "",
+            category: eventItem.classifications?.[0]?.segment?.name || "Live event",
+            latitude: Number(venue?.location?.latitude),
+            longitude: Number(venue?.location?.longitude),
+            url: eventItem.url,
+        });
+    });
+}
+
+function normalizeLiveEvent(eventItem) {
+    return {
+        id: eventItem.id,
+        title: eventItem.name,
+        starts_at: `${eventItem.date}${eventItem.time ? `T${eventItem.time}` : ""}`,
+        venue_name: [eventItem.venue, eventItem.city, eventItem.state].filter(Boolean).join(", "),
+        category: eventItem.category || "Live event",
+        latitude: eventItem.latitude,
+        longitude: eventItem.longitude,
+        url: eventItem.url,
+        emoji: "🎟️",
+    };
+}
 
 loadCustomEvents();
 loadNearbyEvents();

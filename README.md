@@ -51,5 +51,9 @@ NOTIFICATION_FROM_EMAIL=TouchGrass <alerts@your-verified-domain.com>
 
 The sender domain must be verified in Resend. Start the app with `npm start`; preferences are stored in the ignored `.data/` directory.
 
+## GitHub Pages
+
+The static frontend is available at `https://vron-byte.github.io/HackathonProj/`. On GitHub Pages, live event searches use the Ticketmaster browser endpoint because Pages cannot run the Node server. The Node server is still required for saved server preferences and email notifications.
+
 
 
