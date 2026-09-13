@@ -91,6 +91,19 @@ button { cursor: pointer; }
     width: 100%;
 }
 
+#view-unauthenticated {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+#view-unauthenticated .login-button,
+#view-unauthenticated .signup-button {
+    flex: 0 1 125px;
+}
+
 .auth-user-status {
     display: flex;
     flex-direction: column;
