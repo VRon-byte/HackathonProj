@@ -5,7 +5,8 @@
       if (element) element.hidden = view !== name;
     });
   };
-
+const events = await fetch('/api/proxy/events').then(r => r.json());
+const profile = await fetch('/api/proxy/me').then(r => r.json());
   try {
     const response = await fetch('/api/me');
     if (!response.ok) return show('unauthenticated');

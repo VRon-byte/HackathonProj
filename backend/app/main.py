@@ -123,38 +123,33 @@ def update_profile(
 
 @app.get("/api/events")
 def list_events(
-    @app.get("/api/events")
-def list_events(
     category: str | None = None,
     topic: str | None = None,
     db: Connection = Depends(get_db),
 ) -> list[dict]:
-    """Return events for the sidebar and map."""
-    query = """
-        SELECT DISTINCT e.id, e.title, e.description, e.category,
-               e.venue_name, e.venue_address, e.latitude, e.longitude,
-               e.starts_at
-        FROM events e
-        LEFT JOIN event_topics et ON et.event_id = e.id
-        LEFT JOIN topics t ON t.id = et.topic_id
-        WHERE 1=1
+    """Return events for the sidebar and map.
+
+    The optional topic filter is implemented with SQL joins.  The frontend
+    supplies category/topic query parameters from its filter controls.
     """
-    params: list[Any] = []
-
-    if category:
-        query += " AND e.category = %s"
-        params.append(category)
-
-    if topic:
-        query += " AND t.name = lower(%s)"
-        params.append(topic)
-
-    query += " ORDER BY e.starts_at NULLS LAST, e.id"
-
     with db.cursor() as cursor:
-        cursor.execute(query, params)
+        cursor.execute(
+            """
+            SELECT DISTINCT e.id, e.title, e.description, e.category,
+                   e.venue_name, e.venue_address, e.latitude, e.longitude,
+                   e.starts_at
+            FROM events e
+            LEFT JOIN event_topics et ON et.event_id = e.id
+            LEFT JOIN topics t ON t.id = et.topic_id
+            WHERE (%s IS NULL OR e.category = %s)
+              AND (%s IS NULL OR t.name = lower(%s))
+            ORDER BY e.starts_at NULLS LAST, e.id
+            """,
+            (category, category, topic, topic),
+        )
         rows = cursor.fetchall()
     return [event_dict(row) for row in rows]
+
 
 @app.get("/api/events/nearby")
 def nearby_events(

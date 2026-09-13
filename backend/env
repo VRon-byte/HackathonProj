@@ -1,0 +1,5 @@
+DATABASE_URL=postgresql://angie@localhost:5432/touchgrass
+AUTH0_DOMAIN=dev-na3t3nvz7h4erpep.us.auth0.com
+AUTH0_AUDIENCE=https://touchgrass-api
+AUTH0_ISSUER=https://dev-na3t3nvz7h4erpep.us.auth0.com/
+FRONTEND_ORIGINS=http://127.0.0.1:5500

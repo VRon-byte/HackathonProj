@@ -34,6 +34,27 @@ app.get('/profile', (req, res) => {
   return res.json(req.oidc.user);
 });
 
+app.get('/api/proxy/*', async (req, res) => {
+  if (!req.oidc.isAuthenticated()) {
+    return res.status(401).json({ error: 'not logged in' });
+  }
+
+  const path = req.params[0];
+  const queryString = req.url.split('?')[1];
+  const upstreamUrl = `http://localhost:8000/api/${path}${queryString ? '?' + queryString : ''}`;
+
+  try {
+    const upstream = await fetch(upstreamUrl, {
+      headers: { Authorization: `Bearer ${req.oidc.accessToken.access_token}` }
+    });
+    const data = await upstream.json();
+    res.status(upstream.status).json(data);
+  } catch (error) {
+    console.error('Proxy error:', error);
+    res.status(502).json({ error: 'FastAPI backend unreachable' });
+  }
+});
+
 app.use(express.static(__dirname));
 
 app.listen(port, '127.0.0.1', () => {
