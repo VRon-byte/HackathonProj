@@ -76,6 +76,28 @@
         </section>
     </aside>
 
+    <!-- Custom Event Pin Modal -->
+    <div id="custom-pin-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h3>Add Custom Event</h3>
+            <form id="custom-pin-form">
+                <label for="pin-title">Event Title</label>
+                <input type="text" id="pin-title" placeholder="e.g. Park Picnic" required>
+
+                <label for="pin-date">Date & Time</label>
+                <input type="datetime-local" id="pin-date">
+
+                <label for="pin-category">Category</label>
+                <input type="text" id="pin-category" placeholder="e.g. Gathering, Music, Sports">
+
+                <div class="modal-actions">
+                    <button type="button" id="cancel-pin">Cancel</button>
+                    <button type="submit">Save Pin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <main class="map-area">
         <div id="map" aria-label="Map of nearby events"></div>
         <button id="drop-pin-button" type="button">Drop a pin</button>
@@ -116,7 +138,7 @@
           window.client = await auth0.createAuth0Client({
             domain: 'dev-na3t3nvz7h4erpep.us.auth0.com',
             clientId: 'jF1hl8MaOoakXzqwkDbhmQje6NBLL7I6',
-            cacheLocation: 'localstorage', // <--- ADDED HERE
+            cacheLocation: 'localstorage',
             authorizationParams: { 
               redirect_uri: window.location.origin + window.location.pathname 
             },

@@ -21,38 +21,96 @@ let selectedCategory = "";
 let pinnedEventIds = new Set();
 let currentView = "all";
 let currentEventsList = []; // Stores the current events (local or live) for filtering
+
 const dropPinButton = document.querySelector("#drop-pin-button");
 const clearPinsButton = document.querySelector("#clear-pins-button");
-
 let isDroppingPin = false;
 const pinLayer = L.layerGroup().addTo(map);
+
+// Modal elements and temporary location storage
+const customPinModal = document.querySelector("#custom-pin-modal");
+const customPinForm = document.querySelector("#custom-pin-form");
+const cancelPinButton = document.querySelector("#cancel-pin");
+let pendingPinLocation = null;
 
 dropPinButton.addEventListener("click", () => {
     isDroppingPin = !isDroppingPin;
     dropPinButton.classList.toggle("filter-active", isDroppingPin);
-    dropPinButton.textContent = isDroppingPin
-        ? "Click the map..."
-        : "Drop a pin";
+    dropPinButton.textContent = isDroppingPin ? "Click the map..." : "Drop a pin";
 });
 
 clearPinsButton.addEventListener("click", () => {
     pinLayer.clearLayers();
 });
 
+// Map click logic: triggers the modal when dropping a pin
 map.on("click", (event) => {
     if (!isDroppingPin) return;
 
-    const { lat, lng } = event.latlng;
+    // Save the clicked coordinates and show the modal
+    pendingPinLocation = event.latlng;
+    customPinModal.hidden = false;
+    customPinForm.reset();
 
-    const pin = L.marker([lat, lng]).bindPopup(
-        `Pinned location<br>${lat.toFixed(5)}, ${lng.toFixed(5)}`
-    );
-
-    pin.addTo(pinLayer).openPopup();
-
+    // Reset the map dropping state
     isDroppingPin = false;
     dropPinButton.classList.remove("filter-active");
     dropPinButton.textContent = "Drop a pin";
+});
+
+// Cancel the custom pin modal
+cancelPinButton.addEventListener("click", () => {
+    customPinModal.hidden = true;
+    pendingPinLocation = null;
+});
+
+// Handle saving the custom pin
+customPinForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    
+    const title = document.querySelector("#pin-title").value;
+    const date = document.querySelector("#pin-date").value;
+    const category = document.querySelector("#pin-category").value || "User Pinned";
+    
+    // Generate a unique ID for the custom event
+    const newEventId = "custom-pin-" + Date.now();
+    
+    // Create the event object
+    const newEvent = {
+        id: newEventId,
+        title: title,
+        starts_at: date,
+        venue_name: `Custom Location (${pendingPinLocation.lat.toFixed(3)}, ${pendingPinLocation.lng.toFixed(3)})`,
+        category: category,
+        latitude: pendingPinLocation.lat,
+        longitude: pendingPinLocation.lng,
+        emoji: "📍"
+    };
+
+    // 1. Add it to the physical map marker layer
+    const pin = L.marker([newEvent.latitude, newEvent.longitude]).bindPopup(
+        `<strong>${escapeHtml(newEvent.title)}</strong>
+         <br>${escapeHtml(newEvent.venue_name)}
+         <br>${escapeHtml(formatDate(newEvent.starts_at))}`
+    );
+    pin.addTo(pinLayer).openPopup();
+
+    // 2. Automatically store it in the data lists and mark it as pinned
+    localEvents.unshift(newEvent); // Add to the master list of local events
+    
+    // Ensure it shows up in the current list even if the user is viewing Ticketmaster events
+    if (!currentEventsList.includes(newEvent)) {
+        currentEventsList.unshift(newEvent);
+    }
+    
+    pinnedEventIds.add(newEventId); // Auto-pin it to the sidebar
+    
+    // 3. Re-render the sidebar to show the new event
+    renderEvents(currentEventsList);
+
+    // 4. Clean up and close modal
+    customPinModal.hidden = true;
+    pendingPinLocation = null;
 });
 
 // Handle clicking the custom pin buttons on event cards
@@ -69,18 +127,15 @@ document.addEventListener("click", (e) => {
 const eventViewButtons = document.querySelectorAll(".event-view");
 eventViewButtons.forEach(btn => {
     btn.addEventListener("click", (e) => {
-        // Remove active state from all view buttons
         eventViewButtons.forEach(b => {
             b.classList.remove("active");
             b.setAttribute("aria-pressed", "false");
         });
         
-        // Add active state to clicked button
         const targetBtn = e.currentTarget;
         targetBtn.classList.add("active");
         targetBtn.setAttribute("aria-pressed", "true");
         
-        // Update view state and re-render the list
         currentView = targetBtn.dataset.view;
         renderEvents(currentEventsList);
     });
@@ -144,7 +199,7 @@ function renderEvent(event) {
         </button>
     `;
     
-    // Panning to the marker when clicking the card (ignoring the pin button)
+    // Panning to the marker when clicking the card
     card.addEventListener("click", (e) => {
         if (e.target.matches('.pin-btn')) return;
         if (map && Number.isFinite(event.latitude) && Number.isFinite(event.longitude)) {
@@ -249,7 +304,6 @@ liveEventSearch.addEventListener("submit", async (event) => {
         renderEvents(liveEvents);
         const scope = radius === "nationwide" ? "nationwide" : `within ${radius} miles of ${zip}`;
         
-        // Avoid overriding the count text if we filtered it out in the renderEvents call 
         if (currentView !== "pinned") {
             eventStatus.textContent = liveEvents.length ? `${liveEvents.length} live events found ${scope}` : "No live events found in this area.";
         }
