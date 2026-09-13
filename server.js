@@ -39,3 +39,33 @@ app.use(express.static(__dirname));
 app.listen(port, '127.0.0.1', () => {
   console.log(`TouchGrass is running at http://127.0.0.1:${port}`);
 });
+
+const express = require('express');
+const { Pool } = require('pg'); 
+const cors = require('cors');
+
+const app = express();
+app.use(express.json());
+app.use(cors()); 
+
+
+const pool = new Pool({
+  connectionString: 'postgres://tsdbadmin:umcr124i8agy2h1d@p3iqzw86fg.qrjdazel2h.tsdb.cloud.timescale.com:37034/tsdb?sslmode=require'
+});
+
+
+app.post('/api/update-profile', async (req, res) => {
+  const { userId, theme, radius } = req.body;
+  
+  try {
+    await pool.query(
+      `UPDATE users SET setting_theme = $1, alert_radius_miles = $2 WHERE user_id = $3`,
+      [theme, radius, userId]
+    );
+    res.json({ success: true, message: 'Profile updated!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));

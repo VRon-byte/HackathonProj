@@ -241,3 +241,22 @@ fetch('/api/me')
         renderAuthProfile();
     })
     .catch(() => window.location.assign('/login?returnTo=/profile'));
+
+document.querySelectorAll('input[name="radius"]').forEach(radio => {
+    radio.addEventListener('change', async (event) => {
+        
+        const updateData = {
+            userId: 1, // Hardcoded user for testing
+            radius: event.target.value,
+            theme: document.querySelector('.settings-select').value
+        };
+
+        const response = await fetch('http://localhost:3000/api/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updateData)
+        });
+
+        console.log('Saved to Tiger Data!', await response.json());
+    });
+});
