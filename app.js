@@ -307,38 +307,22 @@ liveEventSearch.addEventListener("submit", async (event) => {
     eventList.replaceChildren();
 
     try {
-        if (!window.TICKETMASTER_API_KEY) throw new Error("Ticketmaster search is not configured.");
-        const params = new URLSearchParams({
-            apikey: window.TICKETMASTER_API_KEY,
-            countryCode: "US",
-            size: "30",
-            sort: radius === "nationwide" ? "date,asc" : "distance,asc",
-        });
-        if (radius !== "nationwide") {
-            params.set("postalCode", zip);
-            params.set("radius", radius);
-            params.set("unit", "miles");
-        }
-        const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${params}`, {
-            mode: "cors",
-            credentials: "omit",
-            cache: "no-store",
-            referrerPolicy: "no-referrer",
-        });
+        if (!/^\d{5}$/.test(zip)) throw new Error("Enter a valid 5-digit ZIP code.");
+        const params = new URLSearchParams({ zip, radius });
+        const response = await fetch(`/api/events?${params}`, { cache: "no-store" });
         const data = await response.json();
-        if (!response.ok) throw new Error("Ticketmaster could not load events right now.");
-        const liveEvents = (data._embedded?.events || []).map((eventItem) => {
-            const venue = eventItem._embedded?.venues?.[0];
+        if (!response.ok) throw new Error(data.error || "Ticketmaster could not load events right now.");
+        const liveEvents = data.events.map((eventItem) => {
             return {
-            id: eventItem.id,
-            title: eventItem.name,
-            starts_at: `${eventItem.dates?.start?.localDate || ""}${eventItem.dates?.start?.localTime ? `T${eventItem.dates.start.localTime}` : ""}`,
-            venue_name: [venue?.name, venue?.city?.name, venue?.state?.stateCode].filter(Boolean).join(", "),
-            category: eventItem.classifications?.[0]?.segment?.name || "Live event",
-            latitude: Number(venue?.location?.latitude),
-            longitude: Number(venue?.location?.longitude),
-            url: eventItem.url,
-            emoji: "🎟️",
+                id: eventItem.id,
+                title: eventItem.name,
+                starts_at: `${eventItem.date}${eventItem.time ? `T${eventItem.time}` : ""}`,
+                venue_name: [eventItem.venue, eventItem.city, eventItem.state].filter(Boolean).join(", "),
+                category: eventItem.category || "Live event",
+                latitude: eventItem.latitude,
+                longitude: eventItem.longitude,
+                url: eventItem.url,
+                emoji: "🎟️",
         };
         });
         renderEvents(liveEvents);
