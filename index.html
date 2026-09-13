@@ -32,13 +32,13 @@
                 <!-- Hidden user-profile block for internal debugging if needed -->
                 <pre id="user-profile" style="display: none;"></pre>
                 <a class="login-button" href="profile.html">Profile</a>
-                <button class="login-button" onclick="client.logout({logoutParams:{returnTo:window.location.href}})">Logout</button>
+                <button type="button" class="login-button" onclick="client.logout({logoutParams:{returnTo:window.location.href}})">Logout</button>
             </div>
 
             <!-- Displayed strictly when user IS NOT logged in -->
             <div id="view-unauthenticated" hidden>
-                <button class="login-button" onclick="client.loginWithRedirect()">Login</button>
-                <button class="signup-button" onclick="client.loginWithRedirect({authorizationParams:{screen_hint:'signup'}})">Sign Up</button>
+                <button type="button" class="login-button" onclick="client.loginWithRedirect()">Login</button>
+                <button type="button" class="signup-button" onclick="client.loginWithRedirect({authorizationParams:{screen_hint:'signup'}})">Sign Up</button>
             </div>
         </div>
 
@@ -152,6 +152,5 @@
         }
       })();
     </script>
-    <script src="auth-ui.js"></script>
 </body>
 </html>
