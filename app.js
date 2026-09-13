@@ -25,7 +25,7 @@ let currentEventsList = []; // Stores the current events (local or live) for fil
 const dropPinButton = document.querySelector("#drop-pin-button");
 const clearPinsButton = document.querySelector("#clear-pins-button");
 let isDroppingPin = false;
-const pinLayer = L.layerGroup().addTo(map);
+const pinLayer = hasLeaflet ? L.layerGroup().addTo(map) : null;
 
 // Modal elements and temporary location storage
 const customPinModal = document.querySelector("#custom-pin-modal");
@@ -40,11 +40,11 @@ dropPinButton.addEventListener("click", () => {
 });
 
 clearPinsButton.addEventListener("click", () => {
-    pinLayer.clearLayers();
+    if (pinLayer) pinLayer.clearLayers();
 });
 
 // Map click logic: triggers the modal when dropping a pin
-map.on("click", (event) => {
+if (map) map.on("click", (event) => {
     if (!isDroppingPin) return;
 
     // Save the clicked coordinates and show the modal
@@ -67,6 +67,7 @@ cancelPinButton.addEventListener("click", () => {
 // Handle saving the custom pin
 customPinForm.addEventListener("submit", (e) => {
     e.preventDefault();
+    if (!pendingPinLocation) return;
     
     const title = document.querySelector("#pin-title").value;
     const date = document.querySelector("#pin-date").value;
@@ -88,15 +89,18 @@ customPinForm.addEventListener("submit", (e) => {
     };
 
     // 1. Add it to the physical map marker layer
-    const pin = L.marker([newEvent.latitude, newEvent.longitude]).bindPopup(
-        `<strong>${escapeHtml(newEvent.title)}</strong>
-         <br>${escapeHtml(newEvent.venue_name)}
-         <br>${escapeHtml(formatDate(newEvent.starts_at))}`
-    );
-    pin.addTo(pinLayer).openPopup();
+    if (pinLayer) {
+        const pin = L.marker([newEvent.latitude, newEvent.longitude]).bindPopup(
+            `<strong>${escapeHtml(newEvent.title)}</strong>
+             <br>${escapeHtml(newEvent.venue_name)}
+             <br>${escapeHtml(formatDate(newEvent.starts_at))}`
+        );
+        pin.addTo(pinLayer).openPopup();
+    }
 
     // 2. Automatically store it in the data lists and mark it as pinned
     localEvents.unshift(newEvent); // Add to the master list of local events
+    saveCustomEvents();
     
     // Ensure it shows up in the current list even if the user is viewing Ticketmaster events
     if (!currentEventsList.includes(newEvent)) {
@@ -175,6 +179,35 @@ const localEvents = [
     { id: "pickup-sports", title: "Pick-up Basketball", starts_at: "2026-09-20T10:00:00", venue_name: "City Recreation Center", category: "Sports", latitude: 40.709, longitude: -74.015, emoji: "🏀" },
     { id: "community-tech-talk", title: "Community Tech Talk", starts_at: "2026-09-22T18:30:00", venue_name: "Public Library", category: "Tech", latitude: 40.729, longitude: -74.008, emoji: "💻" }
 ];
+
+const CUSTOM_EVENTS_STORAGE_KEY = "touchgrass-custom-events";
+
+function loadCustomEvents() {
+    try {
+        const storedEvents = JSON.parse(localStorage.getItem(CUSTOM_EVENTS_STORAGE_KEY) || "[]");
+        if (!Array.isArray(storedEvents)) return;
+        storedEvents.filter((event) => event && event.id && Number.isFinite(event.latitude) && Number.isFinite(event.longitude))
+            .reverse()
+            .forEach((event) => {
+                localEvents.unshift(event);
+                pinnedEventIds.add(event.id);
+                if (pinLayer) {
+                    L.marker([event.latitude, event.longitude]).addTo(pinLayer);
+                }
+            });
+    } catch (error) {
+        console.warn("Could not restore custom events.", error);
+    }
+}
+
+function saveCustomEvents() {
+    try {
+        const customEvents = localEvents.filter((event) => event.id.startsWith("custom-pin-"));
+        localStorage.setItem(CUSTOM_EVENTS_STORAGE_KEY, JSON.stringify(customEvents));
+    } catch (error) {
+        console.warn("Could not save custom event.", error);
+    }
+}
 
 function formatDate(value) {
     if (!value) return "Date to be announced";
@@ -312,4 +345,5 @@ liveEventSearch.addEventListener("submit", async (event) => {
     }
 });
 
+loadCustomEvents();
 loadNearbyEvents();
